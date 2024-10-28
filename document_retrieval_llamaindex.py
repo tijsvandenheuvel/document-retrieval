@@ -33,7 +33,8 @@ def search_documents(query):
     return response
 
 # Step 4: Run a sample query
-query = "Give me documents about security cameras"
+# query = "Give me documents about security cameras"
+query = input("Find a document: ")
 result = search_documents(query)
 
 # Display results
