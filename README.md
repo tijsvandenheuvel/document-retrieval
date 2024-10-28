@@ -31,6 +31,6 @@ check installation with
 
 On [this page](https://github.com/tijsvandenheuvel/document-retrieval)
 
-click the &nbsp;<span style="background-color:green"> < > Code ▾ </span>&nbsp; Button
+click the green ` < > Code ▾ ` Button
 
 
