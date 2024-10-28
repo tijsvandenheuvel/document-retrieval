@@ -67,7 +67,7 @@ Note: You can deacticate the virtual environment with the command:
 
 run this command:
 
-`pip3 install llama_index PyPDF2 python-docx`
+`pip3 install llama_index docx2txt`
 
 #### 3.4 add documents to the documents folder
 
@@ -77,5 +77,5 @@ Note: This version only works with `.pdf` and `.docx` files.
 
 run this command:
 
-`python3 document_retrieval.py`
+`python3 document_retrieval_llamaindex.py`
 

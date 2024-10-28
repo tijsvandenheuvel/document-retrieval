@@ -1,1 +1,4 @@
 /documents/*
+/storage
+my_document_index.json
+apikey.txt
