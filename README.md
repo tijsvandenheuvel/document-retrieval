@@ -20,7 +20,7 @@ Note: you can use the up and down arrow keys to select earliers commands.
 
 #### 2.1 Check if it is allready installed
 
-In the Terminal, run this command:
+In the Terminal, run this command to check if python is already installed:
 
 `python3 --version`
 
@@ -31,7 +31,6 @@ This is a package manager for macOS. It allows you to install and manage softwar
 In the Terminal, run this command: 
 
 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-
 
 #### 2.3 Install python
 
@@ -49,7 +48,7 @@ check installation with
 
 Open the project in the Terminal
 
-You can navigate to the project folder using the `cd` command.
+You can navigate to the project folder using the `cd` and `ls` commands.
 
 You can also right-click the folder and click `New Terminal at Folder`
 
