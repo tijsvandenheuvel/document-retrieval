@@ -107,3 +107,9 @@ run this command once:
 run this command:
 
 `python3 document_retrieval_from_scratch.py`
+
+### 5. next steps
+
+- setup a document database 
+- compare different document retrieval methods
+- create a nice interface to interact with the database
