@@ -75,7 +75,20 @@ Note: This version only works with `.pdf` and `.docx` files.
 
 ### 4. Run the code
 
+#### 4.1 LlamaIndex version
+
+for the llamaindex version you need an openAI API key, which you can get on the [platform.openai.com](https://platform.openai.com/api-keys) website
+
+This could also work with other LLMs but this will have to be set up differently.
+
 run this command:
 
 `python3 document_retrieval_llamaindex.py`
 
+#### 4.2 from scratch version
+
+This is based on the tutorial [A beginner's guide to building a Retrieval Augmented Generation (RAG) application from scratch](https://learnbybuilding.ai/tutorials/rag-from-scratch)
+
+run this command:
+
+`python3 document_retrieval_from_scratch.py`
