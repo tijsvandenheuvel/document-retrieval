@@ -33,7 +33,7 @@ def load_documents_from_directory(directory_path):
     return documents
 
 # Set up document directory path
-directory_path = "documents"
+directory_path = "./documents"
 
 corpus_of_documents = load_documents_from_directory(directory_path)
 

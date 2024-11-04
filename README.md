@@ -90,7 +90,7 @@ run this command once:
 
 run this command:
 
-`python3 document_retrieval_llamaindex.py`
+`python3 llamaindex_document_retrieval_llamaindex.py`
 
 #### 4.2 from scratch version
 
@@ -106,7 +106,23 @@ run this command once:
 
 run this command:
 
-`python3 document_retrieval_from_scratch.py`
+`python3 simple_retrieval/document_retrieval_from_scratch.py`
+
+#### 4.3 reference retrieval
+
+This is based on the [PDFx project by metachris](https://www.metachris.com/pdfx/) 
+
+##### 4.3.1 install dependencies
+
+run this command once:
+
+`pip install pdfx`
+
+##### 4.3.2 run script
+
+run this command:
+
+`python3 reference_retrieval/reference_retrieval.py`
 
 ### 5. next steps
 
