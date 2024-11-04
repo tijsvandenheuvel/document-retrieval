@@ -1,6 +1,8 @@
-/documents/*
+*/documents/*
+documents/*
 */storage
 my_document_index.json
 apikey.txt
 filename.txt
 output.txt
+credentials.txt
