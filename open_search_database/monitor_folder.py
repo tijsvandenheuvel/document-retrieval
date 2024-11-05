@@ -8,6 +8,7 @@ from docx import Document as DocxDocument
 
 # OpenSearch configuration
 INDEX_NAME = "documents"
+
 def load_credentials(file_path):
     credentials = {}
     try:
@@ -26,7 +27,10 @@ def configure_opensearch_client(credentials):
     
     client = OpenSearch(
         hosts=[{'host': host, 'port': port}],
-        http_auth=auth
+        http_auth=auth,
+        # use_ssl=True,
+        # verify_certs=False,
+        # ssl_show_warn=False
     )
     return client
 

@@ -1,0 +1,44 @@
+services:
+  opensearch:
+    image: opensearchproject/opensearch:2.9.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_JAVA_OPTS=-Xms4g -Xmx4g  # Adjust memory settings as needed
+      # - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
+      # - OPENSEARCH_SSL_VERIFICATIONMODE=none
+      - DISABLE_SECURITY_PLUGIN=true
+    ports:
+      - 9200:9200  # OpenSearch REST API
+      - 9600:9600  # OpenSearch performance analyzer
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    networks:
+      - opensearch-net
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.9.0
+    container_name: opensearch-dashboards
+    environment:
+      - OPENSEARCH_HOSTS=http://opensearch:9200
+      # - OPENSEARCH_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
+      # - OPENSEARCH_SSL_VERIFICATIONMODE=none
+      - DISABLE_SECURITY_PLUGIN=true
+    ports:
+      - 5601:5601  # OpenSearch Dashboards
+    networks:
+      - opensearch-net
+    depends_on:
+      - opensearch
+
+volumes:
+  opensearch-data:
+    driver: local
+
+networks:
+  opensearch-net:
+    driver: bridge
