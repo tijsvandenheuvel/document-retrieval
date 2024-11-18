@@ -113,6 +113,9 @@ class DocumentHandler(FileSystemEventHandler):
         delete_document(event.src_path)
             
 def monitor_folder(directory):
+    # Create the directory if it doesn't exist
+    os.makedirs(directory, exist_ok=True)
+    
     event_handler = DocumentHandler()
     observer = Observer()
     observer.schedule(event_handler, directory, recursive=True)
