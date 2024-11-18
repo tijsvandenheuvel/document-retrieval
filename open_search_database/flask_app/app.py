@@ -2,68 +2,21 @@ from flask import Flask, request, render_template, jsonify, send_file, g
 from opensearchpy import OpenSearch
 import os
 import subprocess
-import sqlite3
 import json
+from search_history_db import init_db, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_database, get_search_history
 
 app = Flask(__name__)
 
-# SQLite history database 
-
-DATABASE = 'search_history.db'
-
-def init_db():
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    # c.execute('''drop table if exists search_history''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS search_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            query TEXT NOT NULL,
-            result TEXT NOT NULL,
-            result_titles TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
+# SQLite query history database 
 
 init_db()
 
-def get_db():
-    if 'db' not in g:
-        g.db = sqlite3.connect(DATABASE, detect_types=sqlite3.PARSE_DECLTYPES)
-    return g.db
-
 @app.teardown_appcontext
-def close_db(error):
-    if hasattr(g, 'db'):
-        g.db.close()
+def close_database_connection(exception):
+    close_db()
         
 @app.route('/clear-database', methods=['GET'])
-def clear_db_route():
-    def clear_database():
-        try:
-            conn = sqlite3.connect(DATABASE)
-            cursor = conn.cursor()
-
-            # Get all table names
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = cursor.fetchall()
-
-            for table in tables:
-                table_name = table[0]
-                # Skip SQLite's internal tables like sqlite_sequence
-                if table_name.startswith("sqlite_"):
-                    continue
-                cursor.execute(f"DELETE FROM {table_name};")
-                conn.commit()
-            
-            conn.close()
-            return True
-        except Exception as e:
-            print(f"Error clearing database: {e}")
-            return False
-        
+def clear_db_route():        
     success = clear_database()
     if success:
         return jsonify({"message": "Database cleared successfully!"}), 200
@@ -72,28 +25,6 @@ def clear_db_route():
 
 @app.route('/search-history', methods=['GET'])
 def get_all_rows_route():
-    def get_search_history():
-        try:
-            conn = sqlite3.connect(DATABASE)
-            cursor = conn.cursor()
-
-            # Fetch rows from the search_history table
-            query = "SELECT id, query, result, result_titles, timestamp FROM search_history;"
-            cursor.execute(query)
-            rows = cursor.fetchall()
-
-            # Get column names
-            columns = [desc[0] for desc in cursor.description]
-
-            # Convert rows to list of dictionaries
-            search_history = [dict(zip(columns, row)) for row in rows]
-
-            conn.close()
-            return search_history
-        except Exception as e:
-            print(f"Error retrieving search history: {e}")
-            return None
-
     data = get_search_history()
     if data is not None:
         return jsonify(data), 200
@@ -179,23 +110,13 @@ def search():
              "content": hit["_source"]["content"][:200], 
              "score": hit["_score"]
              } for hit in hits]
-        
-        # Store the query and its results into SQLite
-        result_titles = [result["title"] for result in results]        
-        serialized_titles = json.dumps(result_titles)
-        serialized_results = json.dumps(results)  # Store full results as JSON
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute(
-            'INSERT INTO search_history (query, result, result_titles) VALUES (?, ?, ?)',
-            (query, serialized_results, serialized_titles)
-        )        
-        db.commit()
-        
-        # update history
-        history = cursor.execute(
-            'SELECT id, query, result, result_titles, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10'
-        ).fetchall()
+        result_titles = [result["title"] for result in results]   
+            
+        # Save search to history
+        insert_search_history(query, results, result_titles)
+
+        # Update history
+        history = fetch_search_history()
         
         return render_template("index.html", query=query, results=results, history=history)
     except Exception as e:
@@ -204,17 +125,13 @@ def search():
 # New endpoint to fetch results from history
 @app.route("/history/<int:history_id>", methods=["GET"])
 def history_results(history_id):
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute('SELECT query, result FROM search_history WHERE id = ?', (history_id,))
-    entry = cursor.fetchone()
-
+    entry = fetch_history_entry(history_id)
     if entry:
-        query, serialized_results = entry
+        query, serialized_results, serialized_titles = entry
         results = json.loads(serialized_results)
-        history = cursor.execute('SELECT id, query, result, result_titles, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10').fetchall()
+        # result_titles = json.loads(serialized_titles)
+        history = fetch_search_history()
         return render_template("index.html", query=query, results=results, history=history)
-    
     return jsonify({"error": "History entry not found"}), 404
     
 # open local files
