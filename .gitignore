@@ -8,4 +8,4 @@ output.txt
 credentials.txt
 .env
 search_history.db
-*/__pycache__/*
+__pycache__
