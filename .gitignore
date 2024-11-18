@@ -9,3 +9,4 @@ credentials.txt
 .env
 search_history.db
 __pycache__
+.DS_store
