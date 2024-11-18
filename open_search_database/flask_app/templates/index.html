@@ -13,18 +13,29 @@
     <div class="column left-column">
         <a href="{{ url_for('show_documents') }}">View Documents</a>
         <h1>Search Documents</h1>
-        <form method="POST" action="/search">
-            <input type="text" name="query" placeholder="Enter your search query" required>
-            <button type="submit">Search</button>
+        <form method="POST" action="/search" class="search-bar">
+            <input class="search-input"type="text" name="query" placeholder="Enter your search query" required >
+            <button class="search-button" type="submit">Search</button>
         </form>
 
         <h2>Search History</h2>
-        <ul id="search-history">
+        <ul id="search-history" class="item-list">
             {% if history %}
             {% for id, past_query, result, result_titles, timestamp in history %}
             <li class="history-item" data-query="{{ past_query }}" onclick="selectHistoryItem('{{ id }}')">
                 <strong>Query:</strong> {{ past_query }} <br>
-                <strong>Results:</strong> {{ result_titles if result_titles else 'No results' }} <br>
+                <strong>Results:</strong> 
+                <!-- {{ result_titles if result_titles else 'No results' }}  -->
+                {% if result_titles %}
+                <ul>
+                    {% for title in result_titles.split(', ') %}
+                    <li>{{ title.strip('[]"') }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                No results
+                {% endif %}
+                <br>
                 <strong>Time:</strong> {{ timestamp }}
             </li>
             {% endfor %}
@@ -37,7 +48,7 @@
     <div class="column right-column">
         {% if query %}
         <h2>Results for "{{ query }}":</h2>
-        <ul>
+        <ul class="item-list">
             {% for result in results %}
             <li class="result-item">
                 <h3>{{ result.title }}</h3>

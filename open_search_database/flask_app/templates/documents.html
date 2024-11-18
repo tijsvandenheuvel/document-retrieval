@@ -15,9 +15,9 @@
     <div class="column">
         <a href="{{ url_for('home') }}">Back to Index</a>
         <h1>{{ documents|length }} documents in OpenSearch</h1>
-        <ul>
+        <ul class="item-list">
             {% for doc in documents %}
-            <li class="document-list-item">
+            <li class="document-item">
                 <a href="#" onclick="toggleCard('card-{{ loop.index }}')">{{ doc.title }}</a>
                 <div id="card-{{ loop.index }}" class="card">
                     <strong>Title:</strong> {{ doc.title }}<br>

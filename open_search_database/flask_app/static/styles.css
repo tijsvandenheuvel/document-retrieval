@@ -14,12 +14,42 @@ body {
 .right-column {
     overflow: auto;
 }
-ul {
+
+/* LIST */
+
+.item-list{
     list-style-type: none;
     padding: 0;
 }
-li {
+.list-item{
     margin-bottom: 20px;
+}
+
+/* SEARCH */
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.search-input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.search-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.search-button:hover {
+    background-color: #066edd;
+    color: white;
 }
 
 /* DOCUMENTS */
@@ -32,7 +62,7 @@ li {
     border-radius: 5px;
     background-color: #f9f9f9;
 }
-.document-list-item{
+.document-item{
     margin: 5px 0 10px 0;
 }
 
