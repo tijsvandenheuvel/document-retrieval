@@ -35,6 +35,11 @@ function toggleCard(id) {
     }
 }
 
+function toggleFolder(folderId) {
+    const folder = document.getElementById(folderId);
+    folder.style.display = folder.style.display !== 'block' ? 'block' : 'none';
+}
+
 function selectHistoryItem(historyId) {
     document.querySelectorAll('.history-item').forEach(item => {
         item.classList.remove('selected');

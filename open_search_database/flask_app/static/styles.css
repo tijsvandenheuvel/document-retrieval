@@ -66,6 +66,24 @@ body {
     margin: 5px 0 10px 0;
 }
 
+.folder {
+    margin: 10px 0;
+}
+
+.folder-title:hover {
+    background-color: #f0f0f0;
+}
+
+.folder-title {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.folder-contents {
+    display: none;
+    margin-left: 20px;
+}
+
 /* HISTORY */
 
 .history-item {

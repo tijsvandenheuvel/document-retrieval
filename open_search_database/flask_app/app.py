@@ -74,15 +74,34 @@ def show_documents():
             response = opensearch_client.scroll(scroll_id=scroll_id, scroll='2m')
             scroll_id = response['_scroll_id']
             documents.extend(response['hits']['hits'])
-
-        results = [
-            {
-                "title": doc["_source"]["file_path"].split('/')[-1],
-                "file_path": doc["_source"]["file_path"],
+        
+        # Group documents by folder
+        folder_map = {}
+        for doc in documents:
+            file_path = doc["_source"]["file_path"]
+            folder = file_path.split("documents/")[-1]
+            folder = "/".join(folder.split("/")[:-1])  # Remove the file name part
+            file_data = {
+                "title": file_path.split("/")[-1],
+                "file_path": file_path,
                 "content": doc["_source"]["content"][:200]
-            } for doc in documents
+            }
+            folder_map.setdefault(folder, []).append(file_data)
+
+        # Transform folder_map into a list of dictionaries
+        grouped_results = [
+            {
+                "folder": folder,
+                "documents": files,
+                "count": len(files)
+            }
+            for folder, files in sorted(folder_map.items())
         ]
-        return render_template('documents.html', documents=results)
+        
+        total_documents = len(documents)
+
+        return render_template('documents.html', folders=grouped_results, total_documents=total_documents)
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
