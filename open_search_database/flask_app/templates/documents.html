@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Documents</title>
-    <style>
-
-    </style>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
@@ -24,8 +22,10 @@
                     <strong>File Path:</strong> {{ doc.file_path }}<br>
                     <strong>Content:</strong> {{ doc.content }}<br>
                     <br>
-                    <a href="javascript:void(0);" onclick="openFile('{{ doc.title }}')">Open File</a> |
-                    <a href="javascript:void(0);" onclick="downloadFile('{{ doc.title }}')">Download File</a>
+
+                    <a href="javascript:void(0);" onclick="openFile('{{ doc.file_path | escape_single_quotes }}')">Open File</a> |
+                    <a href="javascript:void(0);" onclick="downloadFile('{{ doc.file_path | escape_single_quotes }}')">Download File</a>
+
                 </div>
             </li>
             {% endfor %}

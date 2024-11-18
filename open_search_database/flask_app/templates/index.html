@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Search</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
@@ -55,8 +56,8 @@
                 <p>Path: {{ result.file_path }}</p>
                 <p>Similarity score: {{ result.score }}</p>
                 <p>Snippet: {{ result.content }}</p>
-                <a href="javascript:void(0);" onclick="openFile('{{ result.title }}')">Open File</a> |
-                <a href="javascript:void(0);" onclick="downloadFile('{{ result.title }}')">Download File</a>
+                <a href="javascript:void(0);" onclick="openFile('{{ result.file_path | escape_single_quotes }}')">Open File</a> |
+                <a href="javascript:void(0);" onclick="downloadFile('{{ result.file_path | escape_single_quotes }}')">Download File</a>
             </li>
             {% endfor %}
         </ul>

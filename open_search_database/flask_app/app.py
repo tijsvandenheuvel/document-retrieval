@@ -1,11 +1,19 @@
-from flask import Flask, request, render_template, jsonify, send_file, g
+from flask import Flask, request, render_template, jsonify, send_file, url_for
 from opensearchpy import OpenSearch
 import os
 import subprocess
 import json
 from search_history_db import init_db, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_database, get_search_history
+import jinja2
 
 app = Flask(__name__)
+
+# url format helper
+@app.template_filter('escape_single_quotes')
+def escape_single_quotes(value):
+    if isinstance(value, str):
+        return value.replace("'", "\\'")
+    return value
 
 # SQLite query history database 
 
@@ -46,39 +54,38 @@ opensearch_client = OpenSearch(
 
 @app.route("/", methods=["GET"])
 def home():
-    
-    # get query history
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute('SELECT id, query, result, result_titles, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10')
-    history = cursor.fetchall()
-    
+    history = fetch_search_history()
     return render_template("index.html", history=history)
 
 @app.route('/documents')
 def show_documents():
-    if not opensearch_client.indices.exists(index=INDEX_NAME):
-        results=[]
-    else:
-        # Query for all documents
+    try:
+        documents = []
         response = opensearch_client.search(
             index=INDEX_NAME,
-            body={
-                "query": {
-                    "match_all": {}
-                }
-            }
+            body={"query": {"match_all": {}}},
+            scroll='2m',
+            size=100
         )
+        scroll_id = response['_scroll_id']
+        documents.extend(response['hits']['hits'])
 
-        documents = response['hits']['hits']
+        while len(response['hits']['hits']):
+            response = opensearch_client.scroll(scroll_id=scroll_id, scroll='2m')
+            scroll_id = response['_scroll_id']
+            documents.extend(response['hits']['hits'])
+
         results = [
-                {"title": hit["_source"]["file_path"].split('/')[-1],
-                "file_path": hit["_source"]["file_path"], 
-                "content": hit["_source"]["content"][:200], 
-                # "score": hit["_score"]
-                } for hit in documents]
-    return render_template('documents.html', documents=results)
-
+            {
+                "title": doc["_source"]["file_path"].split('/')[-1],
+                "file_path": doc["_source"]["file_path"],
+                "content": doc["_source"]["content"][:200]
+            } for doc in documents
+        ]
+        return render_template('documents.html', documents=results)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 # Route to handle search queries
 @app.route("/search", methods=["POST"])
 def search():
@@ -140,6 +147,8 @@ DOCUMENTS_DIR = "../documents/"
 
 @app.route("/open/<path:file_path>", methods=["GET"])
 def open_file(file_path):
+    
+    # TODO: handle directory structure, right now only the document title gets passed along
     
     # Construct full path
     full_path = os.path.join(DOCUMENTS_DIR, file_path)
