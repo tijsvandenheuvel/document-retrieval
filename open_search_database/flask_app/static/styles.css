@@ -52,3 +52,15 @@ li {
     background-color: #d0d0ff;
     font-weight: bold;
 }
+
+/* RESULTS */
+
+.result-item {
+    cursor: pointer;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.result-item:hover {
+    background-color: #f0f0f0;
+}

@@ -14,7 +14,7 @@
 <body>
     <div class="column">
         <a href="{{ url_for('home') }}">Back to Index</a>
-        <h1>Documents in OpenSearch</h1>
+        <h1>{{ documents|length }} documents in OpenSearch</h1>
         <ul>
             {% for doc in documents %}
             <li class="document-list-item">

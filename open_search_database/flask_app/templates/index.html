@@ -39,7 +39,7 @@
         <h2>Results for "{{ query }}":</h2>
         <ul>
             {% for result in results %}
-            <li>
+            <li class="result-item">
                 <h3>{{ result.title }}</h3>
                 <p>Path: {{ result.file_path }}</p>
                 <p>Similarity score: {{ result.score }}</p>
