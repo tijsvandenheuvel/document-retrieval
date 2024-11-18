@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Search</title>
+</head>
+<body>
+    <a href="{{ url_for('show_documents') }}">View Documents</a>
+    <h1>Search Documents</h1>
+    <form method="POST" action="/search">
+        <input type="text" name="query" placeholder="Enter your search query" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if query %}
+        <h2>Results for "{{ query }}":</h2>
+        <ul>
+            {% for result in results %}
+                <li>
+                    <h3>{{ result.title }}</h3>
+                    <p>path: {{ result.file_path }}</p>
+                    <p>similarity score: {{ result.score }}</p>
+                    <p>snippet: {{ result.content }}</p>
+                    <a href="/open/{{ result.title }}">Open File</a> |
+                    <a href="/download/{{ result.file_path }}">Download File</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

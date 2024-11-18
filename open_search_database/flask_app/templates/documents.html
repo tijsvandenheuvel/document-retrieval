@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documents</title>
+    <style>
+        .card {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .document-list-item{
+            margin: 5px 0 10px 0;
+        }
+    </style>
+    <script>
+        function toggleCard(id) {
+            console.log("toggle", id);
+            var card = document.getElementById(id);
+            if (card.style.display !== "block") {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <a href="{{ url_for('home') }}">Back to Index</a>
+    <h1>Documents in OpenSearch</h1>
+    <ul>
+        {% for doc in documents %}
+        <li class="document-list-item">
+            <a href="#" onclick="toggleCard('card-{{ loop.index }}')">{{ doc.title }}</a>
+            <div id="card-{{ loop.index }}" class="card">
+                <strong>Title:</strong> {{ doc.title }}<br>
+                <strong>File Path:</strong> {{ doc.file_path }}<br>
+                <strong>Content:</strong> {{ doc.content }}<br>
+                <strong>Score:</strong> {{ doc.score }}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    
+</body>
+</html>
