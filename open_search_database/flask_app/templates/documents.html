@@ -16,17 +16,7 @@
             margin: 5px 0 10px 0;
         }
     </style>
-    <script>
-        function toggleCard(id) {
-            console.log("toggle", id);
-            var card = document.getElementById(id);
-            if (card.style.display !== "block") {
-                card.style.display = "block";
-            } else {
-                card.style.display = "none";
-            }
-        }
-    </script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
 <body>
     <a href="{{ url_for('home') }}">Back to Index</a>
@@ -40,6 +30,9 @@
                 <strong>File Path:</strong> {{ doc.file_path }}<br>
                 <strong>Content:</strong> {{ doc.content }}<br>
                 <strong>Score:</strong> {{ doc.score }}
+                <br>
+                <a href="javascript:void(0);" onclick="openFile('{{ doc.title }}')">Open File</a> |
+                <a href="javascript:void(0);" onclick="downloadFile('{{ doc.title }}')">Download File</a>
             </div>
         </li>
         {% endfor %}

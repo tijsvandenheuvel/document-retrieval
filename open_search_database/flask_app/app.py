@@ -44,7 +44,6 @@ def show_documents():
                 } for hit in documents]
     return render_template('documents.html', documents=results)
 
-
 # Route to handle search queries
 @app.route("/search", methods=["POST"])
 def search():
@@ -80,22 +79,19 @@ def search():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-
 # open local files
 
 DOCUMENTS_DIR = "../documents/"
 
 @app.route("/open/<path:file_path>", methods=["GET"])
 def open_file(file_path):
+    
     # Construct full path
-    
     full_path = os.path.join(DOCUMENTS_DIR, file_path)
+    #print(full_path)
     
-    #full_path = file_path
-    
-    print(full_path)
     if not os.path.exists(full_path):
-        return "File not found", 404
+        return jsonify({"success": False, "error": "File not found"}), 404
 
     # Open the file with the default application
     try:
@@ -105,16 +101,19 @@ def open_file(file_path):
             os.startfile(full_path)
         else:  # Linux or others
             subprocess.run(["xdg-open", full_path])
-        return f"Opening file: {file_path}"
+        return jsonify({"success": True})
     except Exception as e:
-        return f"Error opening file: {e}", 500
+        return jsonify({"success": False, "error": str(e)}), 500
     
 # download file
 
 @app.route("/download/<path:file_path>", methods=["GET"])
 def download_file(file_path):
+    
     # Construct full path
     full_path = os.path.join(DOCUMENTS_DIR, file_path)
+    #print(full_path)
+    
     if not os.path.exists(full_path):
         return "File not found", 404
 

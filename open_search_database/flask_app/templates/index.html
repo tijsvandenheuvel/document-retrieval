@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Search</title>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
 <body>
     <a href="{{ url_for('show_documents') }}">View Documents</a>
@@ -22,8 +23,8 @@
                     <p>path: {{ result.file_path }}</p>
                     <p>similarity score: {{ result.score }}</p>
                     <p>snippet: {{ result.content }}</p>
-                    <a href="/open/{{ result.title }}">Open File</a> |
-                    <a href="/download/{{ result.file_path }}">Download File</a>
+                    <a href="javascript:void(0);" onclick="openFile('{{ result.title }}')">Open File</a> |
+                    <a href="javascript:void(0);" onclick="downloadFile('{{ result.title }}')">Download File</a>
                 </li>
             {% endfor %}
         </ul>
