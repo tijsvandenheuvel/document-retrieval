@@ -22,23 +22,26 @@ def home():
 
 @app.route('/documents')
 def show_documents():
-    # Query for all documents
-    response = opensearch_client.search(
-        index=INDEX_NAME,
-        body={
-            "query": {
-                "match_all": {}
+    if not opensearch_client.indices.exists(index=INDEX_NAME):
+        results=[]
+    else:
+        # Query for all documents
+        response = opensearch_client.search(
+            index=INDEX_NAME,
+            body={
+                "query": {
+                    "match_all": {}
+                }
             }
-        }
-    )
+        )
 
-    documents = response['hits']['hits']
-    results = [
-            {"title": hit["_source"]["file_path"].split('/')[-1],
-             "file_path": hit["_source"]["file_path"], 
-             "content": hit["_source"]["content"][:200], 
-             "score": hit["_score"]
-             } for hit in documents]
+        documents = response['hits']['hits']
+        results = [
+                {"title": hit["_source"]["file_path"].split('/')[-1],
+                "file_path": hit["_source"]["file_path"], 
+                "content": hit["_source"]["content"][:200], 
+                "score": hit["_score"]
+                } for hit in documents]
     return render_template('documents.html', documents=results)
 
 

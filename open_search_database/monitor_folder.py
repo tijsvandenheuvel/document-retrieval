@@ -69,6 +69,7 @@ def extract_text_from_word(file_path):
 
 # Indexing function
 def index_document(file_path):
+    
     if file_path.endswith(".pdf"):
         content = extract_text_from_pdf(file_path)
     elif file_path.endswith(".docx"):
@@ -82,22 +83,36 @@ def index_document(file_path):
         "content": content,
         "file_path": file_path
     }
-    opensearch_client.index(index=INDEX_NAME, body=document)
+    doc_id = file_path
+    opensearch_client.index(index=INDEX_NAME, id=doc_id, body=document)
+    print(f"indexed document: {file_path}")
+    
+def delete_document(file_path):
+        try:
+            opensearch_client.delete(
+                index=INDEX_NAME,
+                id=file_path  # Assuming the file path is used as the document ID
+            )
+            print(f"Deleted document: {file_path}")
+        except Exception as e:
+            print(f"Error deleting document: {e}")
 
 # Watchdog event handler
 class DocumentHandler(FileSystemEventHandler):
     def on_modified(self, event):
-        if not event.is_directory and (event.src_path.endswith(".pdf") or event.src_path.endswith(".docx")):
-            print(f"Indexing modified document: {event.src_path}")
-            index_document(event.src_path)
+        if event.is_directory:
+            return
+        index_document(event.src_path)
 
     def on_created(self, event):
-        if not event.is_directory and (event.src_path.endswith(".pdf") or event.src_path.endswith(".docx")):
-            print(f"Indexing new document: {event.src_path}")
-            index_document(event.src_path)
+        self.on_modified(event)  # Treat creation as an indexing event
 
-# Monitor folder for new or modified documents
-def monitor_folder(directory):       
+    def on_deleted(self, event):
+        if event.is_directory:
+            return
+        delete_document(event.src_path)
+            
+def monitor_folder(directory):
     event_handler = DocumentHandler()
     observer = Observer()
     observer.schedule(event_handler, directory, recursive=True)
@@ -110,5 +125,4 @@ def monitor_folder(directory):
         observer.stop()
     observer.join()
 
-# Start monitoring (replace 'path/to/your/folder' with your folder path)
 monitor_folder("documents")
