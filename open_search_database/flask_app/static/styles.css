@@ -1,0 +1,54 @@
+/* PAGE STYLING */
+
+body {
+    display: flex;
+    font-family: Arial, sans-serif;
+}
+.column {
+    flex: 1;
+    padding: 20px;
+}
+.left-column {
+    border-right: 1px solid #ddd;
+}
+.right-column {
+    overflow: auto;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+li {
+    margin-bottom: 20px;
+}
+
+/* DOCUMENTS */
+
+.card {
+    display: none;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+.document-list-item{
+    margin: 5px 0 10px 0;
+}
+
+/* HISTORY */
+
+.history-item {
+    cursor: pointer;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.history-item:hover {
+    background-color: #f0f0f0;
+}
+
+.history-item.selected {
+    background-color: #d0d0ff;
+    font-weight: bold;
+}

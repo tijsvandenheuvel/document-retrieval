@@ -17,16 +17,6 @@ function downloadFile(filePath) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    // fetch(`/download/${filePath}`)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         if (data.success) {
-    //             alert(`File is being downloaded: ${filePath}`);
-    //         } else {
-    //             alert(`Error: ${data.error}`);
-    //         }
-    //     })
-    //     .catch(error => alert(`Request failed: ${error}`));
 }
 
 function toggleCard(id) {
@@ -36,4 +26,21 @@ function toggleCard(id) {
     } else {
         card.style.display = "none";
     }
+}
+
+function selectHistoryItem(historyId) {
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    const selectedItem = document.querySelector(`[data-history-id="${historyId}"]`);
+    if (selectedItem) {
+        selectedItem.classList.add('selected');
+    }
+
+    fetch(`/history/${historyId}`)
+        .then(response => response.text())
+        .then(html => {
+            document.querySelector('body').innerHTML = html;
+        })
+        .catch(error => console.error("Error:", error));
 }

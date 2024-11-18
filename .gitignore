@@ -7,3 +7,4 @@ filename.txt
 output.txt
 credentials.txt
 .env
+search_history.db
