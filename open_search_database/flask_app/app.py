@@ -14,11 +14,13 @@ DATABASE = 'search_history.db'
 def init_db():
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
+    # c.execute('''drop table if exists search_history''')
     c.execute('''
         CREATE TABLE IF NOT EXISTS search_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             query TEXT NOT NULL,
             result TEXT NOT NULL,
+            result_titles TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -76,7 +78,7 @@ def get_all_rows_route():
             cursor = conn.cursor()
 
             # Fetch rows from the search_history table
-            query = "SELECT id, query, result, timestamp FROM search_history;"
+            query = "SELECT id, query, result, result_titles, timestamp FROM search_history;"
             cursor.execute(query)
             rows = cursor.fetchall()
 
@@ -117,7 +119,7 @@ def home():
     # get query history
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT id, query, result, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10')
+    cursor.execute('SELECT id, query, result, result_titles, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10')
     history = cursor.fetchall()
     
     return render_template("index.html", history=history)
@@ -179,15 +181,22 @@ def search():
              } for hit in hits]
         
         # Store the query and its results into SQLite
+        result_titles = [result["title"] for result in results]        
+        serialized_titles = json.dumps(result_titles)
         serialized_results = json.dumps(results)  # Store full results as JSON
         db = get_db()
         cursor = db.cursor()
-        cursor.execute('INSERT INTO search_history (query, result) VALUES (?, ?)', (query, serialized_results))
+        cursor.execute(
+            'INSERT INTO search_history (query, result, result_titles) VALUES (?, ?, ?)',
+            (query, serialized_results, serialized_titles)
+        )        
         db.commit()
         
         # update history
-        history = cursor.execute('SELECT id, query, result, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10').fetchall()
-
+        history = cursor.execute(
+            'SELECT id, query, result, result_titles, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10'
+        ).fetchall()
+        
         return render_template("index.html", query=query, results=results, history=history)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -203,7 +212,7 @@ def history_results(history_id):
     if entry:
         query, serialized_results = entry
         results = json.loads(serialized_results)
-        history = cursor.execute('SELECT id, query, result, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10').fetchall()
+        history = cursor.execute('SELECT id, query, result, result_titles, timestamp FROM search_history ORDER BY timestamp DESC LIMIT 10').fetchall()
         return render_template("index.html", query=query, results=results, history=history)
     
     return jsonify({"error": "History entry not found"}), 404

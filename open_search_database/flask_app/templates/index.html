@@ -21,10 +21,10 @@
         <h2>Search History</h2>
         <ul id="search-history">
             {% if history %}
-            {% for id, past_query, result, timestamp in history %}
+            {% for id, past_query, result, result_titles, timestamp in history %}
             <li class="history-item" data-query="{{ past_query }}" onclick="selectHistoryItem('{{ id }}')">
                 <strong>Query:</strong> {{ past_query }} <br>
-                <strong>Results:</strong> {{ result }} <br>
+                <strong>Results:</strong> {{ result_titles if result_titles else 'No results' }} <br>
                 <strong>Time:</strong> {{ timestamp }}
             </li>
             {% endfor %}
