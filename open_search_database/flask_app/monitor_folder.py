@@ -124,6 +124,27 @@ def delete_document(file_path):
             print(f"Deleted document: {file_path}")
         except Exception as e:
             print(f"Error deleting document: {e}")
+            
+def check_and_index_existing_documents(directory):
+    """
+    Check if all documents in the folder are indexed.
+    Index any documents that are not already indexed.
+    """
+    for root, _, files in os.walk(directory):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            if file_path.endswith((".pdf", ".docx")):  # Only process supported file types
+                try:
+                    # Check if document is already indexed
+                    response = opensearch_client.get(index=INDEX_NAME, id=file_path, ignore=404)
+                    if response.get('found', False):
+                        print(f"Document already indexed: {file_path}")
+                    else:
+                        log_event_to_db("created", file_path)
+                        index_document(file_path)
+                except Exception as e:
+                    print(f"Error checking/indexing document {file_path}: {e}")
+
 
 # Watchdog event handler
 class DocumentHandler(FileSystemEventHandler):
@@ -146,6 +167,9 @@ class DocumentHandler(FileSystemEventHandler):
 def monitor_folder(directory):
     # Create the directory if it doesn't exist
     os.makedirs(directory, exist_ok=True)
+    
+    # Check and index existing documents in the folder
+    check_and_index_existing_documents(directory)
     
     event_handler = DocumentHandler()
     observer = Observer()
