@@ -12,7 +12,7 @@
 <body>
     <div class="column">
         <a href="{{ url_for('home') }}">Back to Index</a>
-        <h1> {{ total_documents }} documents in OpenSearch</h1>
+        <h1>{{ total_documents }} documents in OpenSearch</h1>
         <ul class="item-list">
             {% for folder in folders %}
             <li class="folder">
@@ -22,8 +22,8 @@
                 <ul id="folder-{{ loop.index }}" class="folder-contents">
                     {% for doc in folder.documents %}
                     <li class="document-item">
-                        <a href="#" onclick="toggleCard('card-{{ loop.index }}')">{{ doc.title }}</a>
-                        <div id="card-{{ loop.index }}" class="card">
+                        <a href="#" onclick="toggleCard('card-{{ doc.unique_id }}')">{{ doc.title }}</a>
+                        <div id="card-{{ doc.unique_id }}" class="card">
                             <strong>Title:</strong> {{ doc.title }}<br><br>
                             <strong>File Path:</strong> {{ doc.file_path }}<br><br>
                             <strong>Snippet:</strong> {{ doc.content }}<br><br>

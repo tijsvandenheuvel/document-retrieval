@@ -80,50 +80,59 @@ def home():
 @app.route('/documents')
 def show_documents():
     try:
+        # Fetch all documents from OpenSearch with scrolling
         documents = []
         response = opensearch_client.search(
             index=INDEX_NAME,
             body={"query": {"match_all": {}}},
-            scroll='2m',
-            size=100
+            scroll='2m',  # Scroll context to fetch large data sets
+            size=100  # Number of documents per request
         )
-        scroll_id = response['_scroll_id']
+        scroll_id = response.get('_scroll_id')
         documents.extend(response['hits']['hits'])
 
-        while len(response['hits']['hits']):
+        # Continue scrolling until no more documents are returned
+        while response['hits']['hits']:
             response = opensearch_client.scroll(scroll_id=scroll_id, scroll='2m')
-            scroll_id = response['_scroll_id']
+            scroll_id = response.get('_scroll_id')
             documents.extend(response['hits']['hits'])
-        
+
         # Group documents by folder
         folder_map = {}
+        unique_id = 0
         for doc in documents:
             file_path = doc["_source"]["file_path"]
             folder = file_path.split("documents/")[-1]
-            folder = "/".join(folder.split("/")[:-1])  # Remove the file name part
+            folder = "/".join(folder.split("/")[:-1])
+            # folder = os.path.dirname(file_path.replace("documents/", ""))
+            unique_id += 1  # Increment unique ID for each document
             file_data = {
-                "title": file_path.split("/")[-1],
+                "unique_id": unique_id,  # Assign unique ID
+                "title": os.path.basename(file_path),  # Get file name
                 "file_path": file_path,
-                "content": doc["_source"]["content"][:200]
+                "content": doc["_source"]["content"][:200]  # Limit snippet size
             }
             folder_map.setdefault(folder, []).append(file_data)
 
-        # Transform folder_map into a list of dictionaries
+        # Convert folder_map to a list of dictionaries for rendering
         grouped_results = [
-            {
-                "folder": folder,
-                "documents": files,
-                "count": len(files)
-            }
+            {"folder": folder, "documents": files, "count": len(files)}
             for folder, files in sorted(folder_map.items())
         ]
-        
+
+        # Total document count
         total_documents = len(documents)
 
         return render_template('documents.html', folders=grouped_results, total_documents=total_documents)
-    
+
+    except KeyError as e:
+        # Handle missing keys in OpenSearch responses
+        error_message = f"Missing key in OpenSearch response: {e}"
+        return jsonify({"error": error_message}), 500
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # Handle unexpected errors
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
     
     
 @app.route('/search', methods=['POST'])
