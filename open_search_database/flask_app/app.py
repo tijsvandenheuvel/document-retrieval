@@ -5,6 +5,14 @@ import subprocess
 import json
 from log_db import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_search_history, get_search_history
 import jinja2
+from sentence_transformers import SentenceTransformer
+
+# Initialize model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+def generate_embeddings(text):
+    # Generate vector embeddings
+    return model.encode(text).tolist()
 
 app = Flask(__name__)
 
@@ -22,7 +30,7 @@ initialize_database()
 def close_database_connection(exception):
     close_db()
         
-@app.route('/clear-database', methods=['GET'])
+@app.route('/clear-search-history', methods=['GET'])
 def clear_db_route():        
     success = clear_search_history()
     if success:
@@ -117,49 +125,77 @@ def show_documents():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-# Route to handle search queries
-@app.route("/search", methods=["POST"])
+    
+@app.route('/search', methods=['POST'])
 def search():
-    query = request.form.get("query")  # Get query from form data
+    query = request.form.get('query')  # Get the search query
+    search_type = request.form.get('search_type')  # Get the search type (keyword or vector)
+
     if not query:
         return jsonify({"error": "Query cannot be empty"}), 400
-    
-    # Define the OpenSearch query
-    query_body = {
-        "query": {
-            "multi_match": {
-                "query": query,
-                "fields": ["content"]  # check the query against the content
-            }
-        }
-    }
-    
-    # Perform search
+
     try:
-        response = opensearch_client.search(
-            index=INDEX_NAME,
-            body=query_body
-        )
-        # Extract results
-        hits = response["hits"]["hits"]
-        results = [
-            {"title": hit["_source"]["file_path"].split('/')[-1],
-             "file_path": hit["_source"]["file_path"], 
-             "content": hit["_source"]["content"][:200], 
-             "score": hit["_score"]
-             } for hit in hits]
-        result_titles = [result["title"] for result in results]   
-            
+        results = []
+
+        if search_type == 'keyword':
+            # Perform keyword-based search
+            query_body = {
+                "query": {
+                    "multi_match": {
+                        "query": query,
+                        "fields": ["content"]  # Specify fields to search
+                    }
+                }
+            }
+            response = opensearch_client.search(index=INDEX_NAME, body=query_body)
+            results = [
+                {
+                    "title": hit["_source"]["file_path"].split('/')[-1],
+                    "file_path": hit["_source"]["file_path"],
+                    "content": hit["_source"]["content"][:200],
+                    "score": hit["_score"]
+                } for hit in response["hits"]["hits"]
+            ]
+
+        elif search_type == 'vector':
+            # Perform vector-based search
+            query_vector = generate_embeddings(query)  # Generate embedding for the query
+            query_body = {
+                "query": {
+                    "knn": {
+                        "content_vector": {
+                            "vector": query_vector,
+                            "k": 10  # Retrieve top 10 results
+                        }
+                    }
+                }
+            }
+            response = opensearch_client.search(index=INDEX_NAME, body=query_body)
+            results = [
+                {
+                    "title": hit["_source"]["file_path"].split('/')[-1],
+                    "file_path": hit["_source"]["file_path"],
+                    "content": hit["_source"]["content"][:200],
+                    "score": hit["_score"]
+                } for hit in response["hits"]["hits"]
+            ]
+
+        else:
+            return jsonify({"error": "Invalid search type"}), 400
+
         # Save search to history
+        result_titles = [result["title"] for result in results]
         insert_search_history(query, results, result_titles)
 
         # Update history
         history = fetch_search_history()
-        
+
         return render_template("index.html", query=query, results=results, history=history)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 # New endpoint to fetch results from history
 @app.route("/history/<int:history_id>", methods=["GET"])
 def history_results(history_id):

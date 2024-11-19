@@ -50,7 +50,7 @@ def insert_search_history(query, result, result_titles):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute(
-        'INSERT INTO search_history (query, result, result_titles) VALUES (?, ?, ?)',
+        "INSERT INTO search_history (query, result, result_titles, timestamp) VALUES (?, ?, ?, datetime('now'))",
         (query, json.dumps(result), json.dumps(result_titles))
     )
     conn.commit()

@@ -6,6 +6,13 @@ from watchdog.events import FileSystemEventHandler
 from PyPDF2 import PdfReader
 from docx import Document as DocxDocument
 from log_db import initialize_database, log_event_to_db
+from sentence_transformers import SentenceTransformer
+
+# KNN
+model = SentenceTransformer('all-MiniLM-L6-v2')
+def generate_embeddings(text):
+    # Generate vector embeddings
+    return model.encode(text).tolist()
 
 # OpenSearch configuration
 INDEX_NAME = "documents"
@@ -38,16 +45,30 @@ def configure_opensearch_client(credentials):
 credentials = load_credentials('credentials.txt')
 opensearch_client = configure_opensearch_client(credentials)
 
-# Ensure index exists
-if not opensearch_client.indices.exists(index=INDEX_NAME):
-    opensearch_client.indices.create(index=INDEX_NAME, body={
-        "mappings": {
-            "properties": {
-                "content": {"type": "text"},
-                "file_path": {"type": "keyword"},
+index_body = {
+    "settings": {
+        "index": {
+            "knn": True  # Enable k-NN for the index
+        }
+    },
+    "mappings": {
+        "properties": {
+            "content": {
+                "type": "text"
+            },
+            "content_vector": {
+                "type": "knn_vector",
+                "dimension": 384  # Match embedding dimension of the model
+            },
+            "file_path": {
+                "type": "keyword"
             }
         }
-    })
+    }
+}
+
+if not opensearch_client.indices.exists(index=INDEX_NAME):
+    opensearch_client.indices.create(index=INDEX_NAME, body=index_body)
     
 # SQLite configuration
 db_conn = initialize_database()
@@ -81,10 +102,13 @@ def index_document(file_path):
     else:
         print(f"Unsupported file type: {file_path}")
         return
+    
+    vector = generate_embeddings(content)
 
     # Index the document in OpenSearch
     document = {
         "content": content,
+        "content_vector": vector,
         "file_path": file_path
     }
     doc_id = file_path
