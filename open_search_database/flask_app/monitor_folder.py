@@ -133,8 +133,8 @@ def monitor_folder(directory):
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
-    finally:
-        db_conn.close()
+    # finally:
+    #     close_db()
     observer.join()
 
 monitor_folder("../documents")

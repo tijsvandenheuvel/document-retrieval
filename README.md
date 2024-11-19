@@ -52,79 +52,21 @@ You can navigate to the project folder using the `cd` and `ls` commands.
 
 You can also right-click the folder and click `New Terminal at Folder`
 
-#### 3.2 Create a virtual environment
-
-We create a virtual environment to keep the project dependencies separate from the rest of the system.
-
-In the Terminal, run this command:
-
-`python3 -m venv doc_retrieval_env`
-
-To activate the virtual environment, run this command:
-
-`source doc_retrieval_env/bin/activate`
-
-Note: You can deacticate the virtual environment with the command:
-
-`deactivate`
-
-#### 3.3 add documents to the documents folder
-
-Note: This version only works with `.pdf` and `.docx` files.
-
 ### 4. Run the code
 
-#### 4.1 LlamaIndex version
+in `open_search_database` run thhis command in terminal
 
-for the llamaindex version you need an openAI API key, which you can get on the [platform.openai.com](https://platform.openai.com/api-keys) website
+`sh install.sh`
 
-This could also work with other LLMs but this will have to be set up differently.
+to start monitoring the documents run
 
-##### 4.1.1 install dependencies
+`sh monitor.sh`
 
-run this command once:
+to start the query app
 
-`pip install llama_index docx2txt`
+`sh run.sh`
 
-##### 4.1.2 run script
-
-run this command:
-
-`python3 llamaindex_document_retrieval_llamaindex.py`
-
-#### 4.2 from scratch version
-
-This is based on the tutorial [A beginner's guide to building a Retrieval Augmented Generation (RAG) application from scratch](https://learnbybuilding.ai/tutorials/rag-from-scratch)
-
-##### 4.2.1 install dependencies
-
-run this command once:
-
-`pip install PyPDF2 python-docx`
-
-##### 4.2.2 run script
-
-run this command:
-
-`python3 simple_retrieval/document_retrieval_from_scratch.py`
-
-#### 4.3 reference retrieval
-
-This is based on the [PDFx project by metachris](https://www.metachris.com/pdfx/) 
-
-##### 4.3.1 install dependencies
-
-run this command once:
-
-`pip install pdfx`
-
-##### 4.3.2 run script
-
-run this command:
-
-`python3 reference_retrieval/reference_retrieval.py`
-
-### 5. next steps
+### 5. Next steps
 
 - setup a document database 
 - compare different document retrieval methods

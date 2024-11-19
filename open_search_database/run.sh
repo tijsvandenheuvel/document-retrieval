@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Activate the virtual environment
-source ../doc_retrieval_env/bin/activate
+source doc_retrieval_env/bin/activate
 
 cd flask_app
 
