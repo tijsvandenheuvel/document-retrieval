@@ -23,11 +23,11 @@
         <h2>Search History</h2>
         <ul id="search-history" class="item-list">
             {% if history %}
-            {% for id, past_query, result, result_titles, timestamp in history %}
+            {% for id, past_query, result, result_titles, search_type, timestamp in history %}
             <li class="history-item" data-query="{{ past_query }}" onclick="selectHistoryItem('{{ id }}')">
                 <strong>Query:</strong> {{ past_query }} <br>
+                <strong>Search Type:</strong> {{ search_type }} <br>
                 <strong>Results:</strong> 
-                <!-- {{ result_titles if result_titles else 'No results' }}  -->
                 {% if result_titles %}
                 <ul>
                     {% for title in result_titles.split(', ') %}
@@ -50,13 +50,14 @@
     <div class="column right-column">
         {% if query %}
         <h2>Results for "{{ query }}":</h2>
+        <strong>Search Type:</strong> {{ results[0].search_type }} <br>
         <ul class="item-list">
             {% for result in results %}
             <li class="result-item">
                 <h3>{{ result.title }}</h3>
-                <p>Path: {{ result.file_path }}</p>
-                <p>Similarity score: {{ result.score }}</p>
-                <p>Snippet: {{ result.content }}</p>
+                <p><strong>Path:</strong> {{ result.file_path }}</p>
+                <p><strong>Similarity score:</strong> {{ result.score }}</p>
+                <p><strong>Snippet:</strong> {{ result.content }}</p>
                 <a href="javascript:void(0);" onclick="openFile('{{ result.file_path | escape_single_quotes }}')">Open File</a> |
                 <a href="javascript:void(0);" onclick="downloadFile('{{ result.file_path | escape_single_quotes }}')">Download File</a>
             </li>

@@ -162,7 +162,8 @@ def search():
                     "title": hit["_source"]["file_path"].split('/')[-1],
                     "file_path": hit["_source"]["file_path"],
                     "content": hit["_source"]["content"][:200],
-                    "score": hit["_score"]
+                    "score": hit["_score"],
+                    "search_type": search_type
                 } for hit in response["hits"]["hits"]
             ]
 
@@ -185,7 +186,8 @@ def search():
                     "title": hit["_source"]["file_path"].split('/')[-1],
                     "file_path": hit["_source"]["file_path"],
                     "content": hit["_source"]["content"][:200],
-                    "score": hit["_score"]
+                    "score": hit["_score"],
+                    "search_type": search_type
                 } for hit in response["hits"]["hits"]
             ]
 
@@ -194,7 +196,8 @@ def search():
 
         # Save search to history
         result_titles = [result["title"] for result in results]
-        insert_search_history(query, results, result_titles)
+        
+        insert_search_history(query, results, result_titles, search_type)
 
         # Update history
         history = fetch_search_history()
@@ -210,9 +213,8 @@ def search():
 def history_results(history_id):
     entry = fetch_history_entry(history_id)
     if entry:
-        query, serialized_results, serialized_titles = entry
+        query, serialized_results = entry
         results = json.loads(serialized_results)
-        # result_titles = json.loads(serialized_titles)
         history = fetch_search_history()
         return render_template("index.html", query=query, results=results, history=history)
     return jsonify({"error": "History entry not found"}), 404

@@ -25,6 +25,7 @@ def initialize_database():
             query TEXT,
             result TEXT,
             result_titles TEXT,
+            search_type TEXT,
             timestamp TEXT
         )
     """)
@@ -46,12 +47,12 @@ def close_db():
         g.db.close()
         
         
-def insert_search_history(query, result, result_titles):
+def insert_search_history(query, result, result_titles, search_type):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO search_history (query, result, result_titles, timestamp) VALUES (?, ?, ?, datetime('now'))",
-        (query, json.dumps(result), json.dumps(result_titles))
+        "INSERT INTO search_history (query, result, result_titles, search_type, timestamp) VALUES (?, ?, ?, ?, datetime('now'))",
+        (query, json.dumps(result), json.dumps(result_titles),search_type)
     )
     conn.commit()
 
@@ -59,14 +60,14 @@ def fetch_search_history(limit=10):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute(
-        f'SELECT id, query, result, result_titles, timestamp FROM search_history ORDER BY timestamp DESC LIMIT {limit}'
+        f'SELECT id, query, result, result_titles, search_type, timestamp FROM search_history ORDER BY timestamp DESC LIMIT {limit}'
     )
     return cursor.fetchall()
 
 def fetch_history_entry(history_id):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT query, result, result_titles FROM search_history WHERE id = ?', (history_id,))
+    cursor.execute('SELECT query, result FROM search_history WHERE id = ?', (history_id,))
     return cursor.fetchone()
 
 def get_search_history():
@@ -75,7 +76,7 @@ def get_search_history():
         cursor = conn.cursor()
 
         # Fetch rows from the search_history table
-        query = "SELECT id, query, result, result_titles, timestamp FROM search_history;"
+        query = "SELECT id, query, result, result_titles, search_type, timestamp FROM search_history;"
         cursor.execute(query)
         rows = cursor.fetchall()
 
@@ -97,6 +98,7 @@ def clear_search_history():
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
             
+        # cursor.execute(f"DROP TABLE IF EXISTS search_history;")
         cursor.execute(f"DELETE FROM search_history;")
         conn.commit()
         
