@@ -3,32 +3,36 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Documents</title>
-    <link rel="icon" href="data:,">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Viewer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
 
 <body>
-    <div class="column">
-        <a href="{{ url_for('home') }}">Back to Index</a>
-        <h1>{{ total_documents }} documents in OpenSearch</h1>
-        <ul class="item-list">
+    <div class="container document-container">
+        <a href="{{ url_for('home') }}" class="link-button doc-link-button">⬅️ Back to Index</a>
+        <h1 class="document-page-title">{{ total_documents }} Documents in OpenSearch</h1>
+        <ul class="folder-list">
             {% for folder in folders %}
             <li class="folder">
-                <div class="folder-title" onclick="toggleFolder('folder-{{ loop.index }}')">
+                <div class="folder-header" onclick="toggleFolder('folder-{{ loop.index }}')">
                     📁 {{ folder.folder }} ({{ folder.count }} documents)
                 </div>
                 <ul id="folder-{{ loop.index }}" class="folder-contents">
                     {% for doc in folder.documents %}
                     <li class="document-item">
-                        <a href="#" onclick="toggleCard('card-{{ doc.unique_id }}')">{{ doc.title }}</a>
-                        <div id="card-{{ doc.unique_id }}" class="card">
-                            <strong>Title:</strong> {{ doc.title }}<br><br>
-                            <strong>File Path:</strong> {{ doc.file_path }}<br><br>
-                            <strong>Snippet:</strong> {{ doc.content }}<br><br>
-                            <a href="javascript:void(0);" onclick="openFile('{{ doc.file_path | escape_single_quotes }}')">Open File</a> |
-                            <a href="javascript:void(0);" onclick="downloadFile('{{ doc.file_path | escape_single_quotes }}')">Download File</a>
+                        <div class="document-header">
+                            <a href="#" onclick="toggleCard('card-{{ doc.unique_id }}')">{{ doc.title }}</a>
+                        </div>
+                        <div id="card-{{ doc.unique_id }}" class="document-card">
+                            <p><strong>Title:</strong> {{ doc.title }}</p>
+                            <p><strong>File Path:</strong> {{ doc.file_path }}</p>
+                            <p><strong>Snippet:</strong> {{ doc.content }}</p>
+                            <div class="actions">
+                                <a href="javascript:void(0);" onclick="openFile('{{ doc.file_path | escape_single_quotes }}')">Open File</a>
+                                <a href="javascript:void(0);" onclick="downloadFile('{{ doc.file_path | escape_single_quotes }}')">Download File</a>
+                            </div>
                         </div>
                     </li>
                     {% endfor %}
@@ -36,9 +40,7 @@
             </li>
             {% endfor %}
         </ul>
-
     </div>
-
 </body>
 
 </html>
