@@ -10,3 +10,6 @@ credentials.txt
 search_history.db
 __pycache__
 .DS_store
+monitor_logs.db
+doc_retrieval_env
+log.db

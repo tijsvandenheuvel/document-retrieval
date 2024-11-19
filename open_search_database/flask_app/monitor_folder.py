@@ -5,6 +5,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from PyPDF2 import PdfReader
 from docx import Document as DocxDocument
+from log_db import initialize_database, log_event_to_db
 
 # OpenSearch configuration
 INDEX_NAME = "documents"
@@ -47,6 +48,9 @@ if not opensearch_client.indices.exists(index=INDEX_NAME):
             }
         }
     })
+    
+# SQLite configuration
+db_conn = initialize_database()
 
 # Text extraction functions
 def extract_text_from_pdf(file_path):
@@ -102,14 +106,17 @@ class DocumentHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if event.is_directory:
             return
+        log_event_to_db("modified", event.src_path)
         index_document(event.src_path)
 
     def on_created(self, event):
         self.on_modified(event)  # Treat creation as an indexing event
+        log_event_to_db("created", event.src_path)
 
     def on_deleted(self, event):
         if event.is_directory:
             return
+        log_event_to_db("deleted", event.src_path)
         delete_document(event.src_path)
             
 def monitor_folder(directory):
@@ -126,6 +133,8 @@ def monitor_folder(directory):
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
+    finally:
+        db_conn.close()
     observer.join()
 
-monitor_folder("documents")
+monitor_folder("../documents")

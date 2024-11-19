@@ -3,7 +3,7 @@ from opensearchpy import OpenSearch
 import os
 import subprocess
 import json
-from search_history_db import init_db, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_database, get_search_history
+from log_db import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_search_history, get_search_history
 import jinja2
 
 app = Flask(__name__)
@@ -16,8 +16,7 @@ def escape_single_quotes(value):
     return value
 
 # SQLite query history database 
-
-init_db()
+initialize_database()
 
 @app.teardown_appcontext
 def close_database_connection(exception):
@@ -25,7 +24,7 @@ def close_database_connection(exception):
         
 @app.route('/clear-database', methods=['GET'])
 def clear_db_route():        
-    success = clear_database()
+    success = clear_search_history()
     if success:
         return jsonify({"message": "Database cleared successfully!"}), 200
     else:
@@ -39,6 +38,19 @@ def get_all_rows_route():
     else:
         return jsonify({"message": "Failed to retrieve data."}), 500
 
+@app.route('/logs', methods=['GET'])
+def get_logs():
+    """Fetch all logs."""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM monitor_logs ORDER BY timestamp DESC")
+        logs = cursor.fetchall()
+        logs_list = [dict(row) for row in logs]
+        return jsonify(logs_list), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to retrieve logs: {e}"}), 500
+    
 # OpenSearch document database
 
 INDEX_NAME = 'documents'
@@ -203,6 +215,11 @@ def download_file(file_path):
     # Send file for download
     return send_file(full_path, as_attachment=True)
 
+# import webbrowser
+# from threading import Timer
+# def open_browser():
+#     webbrowser.open_new("http://127.0.0.1:5000")
 
 if __name__ == "__main__":
+    # Timer(1, open_browser).start()
     app.run(debug=True)
