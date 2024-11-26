@@ -5,6 +5,7 @@ import json
 from db_sqlite import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_search_history, get_search_history, fetch_logs
 from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents
 from sentence_transformer import generate_embeddings
+from scenario_script import load_queries
 
 app = Flask(__name__)
 
@@ -53,7 +54,7 @@ def home():
     history = fetch_search_history()
     return render_template("index.html", history=history, json_loads=json.loads)
 
-@app.route('/documents')
+@app.route('/documents', methods=["GET"])
 def show_documents():
     try:
         # Fetch all documents from OpenSearch with scrolling
@@ -95,7 +96,12 @@ def show_documents():
     except Exception as e:
         # Handle unexpected errors
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+@app.route('/scenario', methods=["GET"])
+def run_scenario():
+    # queries = load_queries()
     
+    return render_template('scenario.html')
     
 @app.route('/search', methods=['POST'])
 def search():

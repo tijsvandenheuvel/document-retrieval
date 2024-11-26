@@ -20,7 +20,7 @@ body {
     flex-direction: column;
 }
 
-.document-page-title{
+.page-title{
     margin-left: 20px;
 }
 
@@ -40,7 +40,7 @@ body {
 
 /* Links and Buttons */
 .link-button {
-    width: 200px;
+    width: 160px;
     display: inline-block;
     padding: 10px 15px;
     margin-bottom: 15px;

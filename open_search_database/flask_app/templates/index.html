@@ -13,7 +13,11 @@
     <div class="container">
         <!-- Left Column: Search and History -->
         <div class="column left-column">
-            <a href="{{ url_for('show_documents') }}" class="link-button">📂 View Documents</a>
+            <div class="navigation">
+                <a href="{{ url_for('home') }}" class="link-button doc-link-button">⬅️ Back to Index</a>
+                <a href="{{ url_for('show_documents') }}" class="link-button">📂 View Documents</a>
+                <a href="{{ url_for('run_scenario') }}" class="link-button">Scenario</a>
+            </div>
             <h1>Search Documents</h1>
             <form method="POST" action="/search" class="search-form">
                 <input class="search-input" type="text" name="query" placeholder="Enter your search query" required value="{{ query if query else '' }}">
