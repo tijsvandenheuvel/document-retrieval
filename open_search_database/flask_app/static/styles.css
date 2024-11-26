@@ -9,7 +9,7 @@ body {
 
 .container {
     display: flex;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */
     margin: 0 auto;
     padding: 10px;
     background: #fff;
@@ -27,7 +27,7 @@ body {
 /* Columns */
 .column {
     padding: 20px;
-    flex: 1;
+    width: 49vw;
 }
 
 .left-column {
@@ -44,7 +44,7 @@ body {
     display: inline-block;
     padding: 10px 15px;
     margin-bottom: 15px;
-    background: #007bff;
+    background: LightSlateGrey;
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
@@ -52,7 +52,7 @@ body {
 }
 
 .link-button:hover {
-    background: #0056b3;
+    background: LightSteelBlue;
 }
 
 .doc-link-button{
@@ -63,7 +63,7 @@ body {
 .search-button {
     padding: 10px 15px;
     margin: 5px;
-    background: #28a745;
+    background: LightSlateGrey;
     color: white;
     border: none;
     border-radius: 5px;
@@ -71,11 +71,11 @@ body {
 }
 
 .search-button.alt {
-    background: #ffc107;
+    background: LightSlateGrey;
 }
 
 .search-button:hover {
-    opacity: 0.9;
+    background: LightSteelBlue;
 }
 
 .search-input {
