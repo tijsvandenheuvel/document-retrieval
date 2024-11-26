@@ -1,9 +1,8 @@
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
-from db_opensearch import search_by_keyword, search_by_vector
+from db_opensearch import search_by_keyword, search_by_vector, generate_embeddings
 import json
-from sentence_transformer import generate_embeddings
 
 def load_queries():
     try:

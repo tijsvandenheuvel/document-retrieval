@@ -6,7 +6,7 @@ from watchdog.events import FileSystemEventHandler
 from PyPDF2 import PdfReader
 from docx import Document as DocxDocument
 from db_sqlite import initialize_database, log_event_to_db
-from sentence_transformer import generate_embeddings
+from db_opensearch import generate_embeddings
 
 # OpenSearch configuration
 INDEX_NAME = "documents"

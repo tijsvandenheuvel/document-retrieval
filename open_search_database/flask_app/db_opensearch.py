@@ -1,5 +1,11 @@
 from opensearchpy import OpenSearch
 import os
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+def generate_embeddings(text):
+    return model.encode(text).tolist()
 
 INDEX_NAME = 'documents'
 
@@ -48,16 +54,6 @@ def search_by_vector(query_vector, search_type):
     response = opensearch_client.search(index=INDEX_NAME, body=query_body)
     return parse_response(response, search_type)
     
-
-# def search_documents(query, search_type):
-#     if search_type == 'keyword':
-#         return search_by_keyword(query)
-#     elif search_type == 'vector':
-#         # Convert the query to a vector using your preferred method (e.g., SentenceTransformer)
-#         query_vector = convert_query_to_vector(query)
-#         return search_by_vector(query_vector)
-#     else:
-#         raise ValueError("Invalid search type. Choose 'keyword' or 'vector'.")
 
 def fetch_all_documents():
     # Fetch all documents from OpenSearch with scrolling
