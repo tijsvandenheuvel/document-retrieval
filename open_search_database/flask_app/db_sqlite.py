@@ -1,5 +1,5 @@
 import sqlite3
-from flask import g
+from flask import g, jsonify
 import json
 
 DATABASE = 'log.db'
@@ -72,8 +72,8 @@ def fetch_history_entry(history_id):
 
 def get_search_history():
     try:
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
+        db = get_db()
+        cursor = db.cursor()
 
         # Fetch rows from the search_history table
         query = "SELECT id, query, result, result_titles, search_type, timestamp FROM search_history;"
@@ -86,7 +86,7 @@ def get_search_history():
         # Convert rows to list of dictionaries
         search_history = [dict(zip(columns, row)) for row in rows]
 
-        conn.close()
+        close_db()
         return search_history
     except Exception as e:
         print(f"Error retrieving search history: {e}")
@@ -113,3 +113,16 @@ def log_event_to_db(event_type, file_path):
     cursor = conn.cursor()
     cursor.execute("INSERT INTO monitor_logs (event_type, file_path, timestamp) VALUES (?, ?, datetime('now'))", (event_type, file_path))
     conn.commit()
+    
+    
+def fetch_logs():
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM monitor_logs ORDER BY timestamp DESC")
+        logs = cursor.fetchall()
+        logs_list = [dict(row) for row in logs]
+        close_db()
+        return logs_list
+    except Exception as e:
+        return {'error': f"Failed to retrieve logs: {e}"}, 500

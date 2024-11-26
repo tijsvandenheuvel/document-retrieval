@@ -5,14 +5,8 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from PyPDF2 import PdfReader
 from docx import Document as DocxDocument
-from log_db import initialize_database, log_event_to_db
-from sentence_transformers import SentenceTransformer
-
-# KNN
-model = SentenceTransformer('all-MiniLM-L6-v2')
-def generate_embeddings(text):
-    # Generate vector embeddings
-    return model.encode(text).tolist()
+from db_sqlite import initialize_database, log_event_to_db
+from sentence_transformer import generate_embeddings
 
 # OpenSearch configuration
 INDEX_NAME = "documents"

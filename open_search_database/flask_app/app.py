@@ -1,18 +1,10 @@
-from flask import Flask, request, render_template, jsonify, send_file, url_for
-from opensearchpy import OpenSearch
+from flask import Flask, request, render_template, jsonify, send_file
 import os
 import subprocess
 import json
-from log_db import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_search_history, get_search_history
-import jinja2
-from sentence_transformers import SentenceTransformer
-
-# Initialize model
-model = SentenceTransformer('all-MiniLM-L6-v2')
-
-def generate_embeddings(text):
-    # Generate vector embeddings
-    return model.encode(text).tolist()
+from db_sqlite import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_search_history, get_search_history, fetch_logs
+from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents
+from sentence_transformer import generate_embeddings
 
 app = Flask(__name__)
 
@@ -48,27 +40,11 @@ def get_all_rows_route():
 
 @app.route('/logs', methods=['GET'])
 def get_logs():
-    """Fetch all logs."""
-    try:
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM monitor_logs ORDER BY timestamp DESC")
-        logs = cursor.fetchall()
-        logs_list = [dict(row) for row in logs]
-        return jsonify(logs_list), 200
-    except Exception as e:
-        return jsonify({'error': f"Failed to retrieve logs: {e}"}), 500
-    
-# OpenSearch document database
-
-INDEX_NAME = 'documents'
-
-opensearch_client = OpenSearch(
-    hosts=[{'host': 'localhost', 'port': 9200}],
-    #http_auth=('admin', 'admin'),  # Replace with your OpenSearch credentials
-    #use_ssl=False,
-    #verify_certs=False
-)
+    data = fetch_logs()
+    if data is not None:
+        return jsonify(data), 200
+    else:
+        return jsonify({"message": "Failed to retrieve data."}), 500
 
 # Routes
 
@@ -81,21 +57,7 @@ def home():
 def show_documents():
     try:
         # Fetch all documents from OpenSearch with scrolling
-        documents = []
-        response = opensearch_client.search(
-            index=INDEX_NAME,
-            body={"query": {"match_all": {}}},
-            scroll='2m',  # Scroll context to fetch large data sets
-            size=100  # Number of documents per request
-        )
-        scroll_id = response.get('_scroll_id')
-        documents.extend(response['hits']['hits'])
-
-        # Continue scrolling until no more documents are returned
-        while response['hits']['hits']:
-            response = opensearch_client.scroll(scroll_id=scroll_id, scroll='2m')
-            scroll_id = response.get('_scroll_id')
-            documents.extend(response['hits']['hits'])
+        documents = fetch_all_documents()
 
         # Group documents by folder
         folder_map = {}
@@ -145,18 +107,9 @@ def search():
 
     try:
         results = []
-
+        
         if search_type == 'keyword':
-            # Perform keyword-based search
-            query_body = {
-                "query": {
-                    "multi_match": {
-                        "query": query,
-                        "fields": ["content"]  # Specify fields to search
-                    }
-                }
-            }
-            response = opensearch_client.search(index=INDEX_NAME, body=query_body)
+            response = search_by_keyword(query)
             results = [
                 {
                     "title": hit["_source"]["file_path"].split('/')[-1],
@@ -168,19 +121,8 @@ def search():
             ]
 
         elif search_type == 'vector':
-            # Perform vector-based search
             query_vector = generate_embeddings(query)  # Generate embedding for the query
-            query_body = {
-                "query": {
-                    "knn": {
-                        "content_vector": {
-                            "vector": query_vector,
-                            "k": 10  # Retrieve top 10 results
-                        }
-                    }
-                }
-            }
-            response = opensearch_client.search(index=INDEX_NAME, body=query_body)
+            response = search_by_vector(query_vector)
             results = [
                 {
                     "title": hit["_source"]["file_path"].split('/')[-1],
@@ -226,8 +168,6 @@ DOCUMENTS_DIR = "../documents/"
 @app.route("/open/<path:file_path>", methods=["GET"])
 def open_file(file_path):
     
-    # TODO: handle directory structure, right now only the document title gets passed along
-    
     # Construct full path
     full_path = os.path.join(DOCUMENTS_DIR, file_path)
     #print(full_path)
@@ -261,6 +201,9 @@ def download_file(file_path):
 
     # Send file for download
     return send_file(full_path, as_attachment=True)
+
+
+# code to automatically open the page on startup
 
 # import webbrowser
 # from threading import Timer
