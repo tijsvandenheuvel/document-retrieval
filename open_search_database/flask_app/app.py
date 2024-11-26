@@ -3,7 +3,7 @@ import os
 import subprocess
 import json
 from db_sqlite import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_search_history, get_search_history, fetch_logs
-from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents
+from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents, process_documents
 from sentence_transformer import generate_embeddings
 from scenario_script import load_results, get_queries
 
@@ -47,8 +47,6 @@ def get_logs():
     else:
         return jsonify({"message": "Failed to retrieve data."}), 500
 
-# Routes
-
 @app.route("/", methods=["GET"])
 def home():
     history = fetch_search_history()
@@ -57,36 +55,11 @@ def home():
 @app.route('/documents', methods=["GET"])
 def show_documents():
     try:
-        # Fetch all documents from OpenSearch with scrolling
         documents = fetch_all_documents()
-
-        # Group documents by folder
-        folder_map = {}
-        unique_id = 0
-        for doc in documents:
-            file_path = doc["_source"]["file_path"]
-            folder = file_path.split("documents/")[-1]
-            folder = "/".join(folder.split("/")[:-1])
-            # folder = os.path.dirname(file_path.replace("documents/", ""))
-            unique_id += 1  # Increment unique ID for each document
-            file_data = {
-                "unique_id": unique_id,  # Assign unique ID
-                "title": os.path.basename(file_path),  # Get file name
-                "file_path": file_path,
-                "content": doc["_source"]["content"][:200]  # Limit snippet size
-            }
-            folder_map.setdefault(folder, []).append(file_data)
-
-        # Convert folder_map to a list of dictionaries for rendering
-        grouped_results = [
-            {"folder": folder, "documents": files, "count": len(files)}
-            for folder, files in sorted(folder_map.items())
-        ]
-
-        # Total document count
+        results = process_documents(documents)
         total_documents = len(documents)
 
-        return render_template('documents.html', folders=grouped_results, total_documents=total_documents)
+        return render_template('documents.html', folders=results, total_documents=total_documents)
 
     except KeyError as e:
         # Handle missing keys in OpenSearch responses
@@ -100,14 +73,11 @@ def show_documents():
 @app.route('/scenario', methods=["GET"])
 def run_scenario():
     results = get_queries()
-    
     return render_template('scenario.html', results=results, json_loads=json.loads)
     
 @app.route('/get-results', methods=["POST"])
 def get_results():
-    
     results = load_results()
-
     return render_template('scenario.html', results=results, json_loads=json.loads)
 
 @app.route('/search', methods=['POST'])
@@ -122,30 +92,10 @@ def search():
         results = []
         
         if search_type == 'keyword':
-            response = search_by_keyword(query)
-            results = [
-                {
-                    "title": hit["_source"]["file_path"].split('/')[-1],
-                    "file_path": hit["_source"]["file_path"],
-                    "content": hit["_source"]["content"][:200],
-                    "score": hit["_score"],
-                    "search_type": search_type
-                } for hit in response["hits"]["hits"]
-            ]
-
+            results = search_by_keyword(query, search_type)
         elif search_type == 'vector':
             query_vector = generate_embeddings(query)  # Generate embedding for the query
-            response = search_by_vector(query_vector)
-            results = [
-                {
-                    "title": hit["_source"]["file_path"].split('/')[-1],
-                    "file_path": hit["_source"]["file_path"],
-                    "content": hit["_source"]["content"][:200],
-                    "score": hit["_score"],
-                    "search_type": search_type
-                } for hit in response["hits"]["hits"]
-            ]
-
+            results = search_by_vector(query_vector, search_type)
         else:
             return jsonify({"error": "Invalid search type"}), 400
 
@@ -161,7 +111,6 @@ def search():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 # New endpoint to fetch results from history
 @app.route("/history/<int:history_id>", methods=["GET"])
