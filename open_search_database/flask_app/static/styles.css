@@ -16,22 +16,26 @@ body {
     min-height: 100vh;
 }
 
-.document-container{
+.document-container {
     flex-direction: column;
 }
 
-.page-title{
+.page-title {
     margin-left: 20px;
 }
 
 /* Columns */
 .column {
-    padding: 20px;
+
     width: 49vw;
 }
 
 .left-column {
     border-right: 1px solid #ddd;
+}
+
+.left-column-body {
+    padding: 0 20px;
 }
 
 .right-column {
@@ -55,9 +59,9 @@ body {
     background: LightSteelBlue;
 }
 
-.doc-link-button{
-    margin-left: 20px; 
-    margin-top: 20px; 
+.doc-link-button {
+    margin-left: 20px;
+    margin-top: 20px;
 }
 
 .search-button {
@@ -96,7 +100,8 @@ body {
     padding: 0;
 }
 
-.history-item, .result-item{
+.history-item,
+.result-item {
     background: #f9f9f9;
     margin-bottom: 10px;
     padding: 15px;
@@ -104,11 +109,12 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.history-item:hover, .result-item:hover {
+.history-item:hover,
+.result-item:hover {
     background-color: #f0f0f0;
 }
 
-.folder-list{
+.folder-list {
     list-style-type: none;
     padding: 0;
     margin: 0 10px;
@@ -135,7 +141,7 @@ body {
 
 .folder-contents {
     display: none;
-    
+
     padding: 15px;
     padding-left: 30px;
 }
