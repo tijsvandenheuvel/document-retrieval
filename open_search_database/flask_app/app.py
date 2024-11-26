@@ -75,7 +75,7 @@ opensearch_client = OpenSearch(
 @app.route("/", methods=["GET"])
 def home():
     history = fetch_search_history()
-    return render_template("index.html", history=history)
+    return render_template("index.html", history=history, json_loads=json.loads)
 
 @app.route('/documents')
 def show_documents():
@@ -202,7 +202,7 @@ def search():
         # Update history
         history = fetch_search_history()
 
-        return render_template("index.html", query=query, results=results, history=history)
+        return render_template("index.html", query=query, results=results, history=history, json_loads=json.loads)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -216,7 +216,7 @@ def history_results(history_id):
         query, serialized_results = entry
         results = json.loads(serialized_results)
         history = fetch_search_history()
-        return render_template("index.html", query=query, results=results, history=history)
+        return render_template("index.html", query=query, results=results, history=history, json_loads=json.loads)
     return jsonify({"error": "History entry not found"}), 404
     
 # open local files

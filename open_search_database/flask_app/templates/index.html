@@ -33,8 +33,8 @@
                     <strong>Results:</strong> 
                     {% if result_titles %}
                     <ul>
-                        {% for title in result_titles.split(', ') %}
-                        <li>{{ title.strip('[]"') }}</li>
+                        {% for title in json_loads(result_titles) %}
+                        <li>{{ title }}</li>
                         {% endfor %}
                     </ul>
                     {% else %}
