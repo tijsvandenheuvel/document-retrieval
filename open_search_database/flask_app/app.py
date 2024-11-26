@@ -5,7 +5,7 @@ import json
 from db_sqlite import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, get_db, close_db, clear_search_history, get_search_history, fetch_logs
 from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents
 from sentence_transformer import generate_embeddings
-from scenario_script import load_queries
+from scenario_script import load_results, get_queries
 
 app = Flask(__name__)
 
@@ -99,10 +99,17 @@ def show_documents():
 
 @app.route('/scenario', methods=["GET"])
 def run_scenario():
-    # queries = load_queries()
+    results = get_queries()
     
-    return render_template('scenario.html')
+    return render_template('scenario.html', results=results, json_loads=json.loads)
     
+@app.route('/get-results', methods=["POST"])
+def get_results():
+    
+    results = load_results()
+
+    return render_template('scenario.html', results=results, json_loads=json.loads)
+
 @app.route('/search', methods=['POST'])
 def search():
     query = request.form.get('query')  # Get the search query

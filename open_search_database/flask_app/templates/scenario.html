@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Viewer</title>
+    <title>Scenario</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
@@ -16,9 +16,46 @@
             <a href="{{ url_for('show_documents') }}" class="link-button">📂 View Documents</a>
             <a href="{{ url_for('run_scenario') }}" class="link-button">Scenario</a>
         </div>
-        
-        
+
+
         <h1 class="page-title">hello scenario</h1>
+
+        <form method="POST" action="/get-results" class="search-form">
+            <div class="button-group">
+                <button class="search-button" type="submit" name="search_type" value="search">get search results</button>
+                <!-- <button class="search-button" type="submit" name="search_type" value="export">export results</button> -->
+            </div>
+        </form>
+
+        <div class="queries">
+            {% for result in results %}
+            <div class="query">
+                <h4>{{ result.query }}</h4>
+
+                <b>Search by keyword results: </b>
+                {% if result.keyword_search_results %}
+                <ul class="result-titles">
+                    {% for title in json_loads(result.keyword_search_results ) %}
+                    <li>{{ title }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                No results
+                {% endif %}
+
+                <b>Search by vector results: </b>
+                {% if result.vector_search_results %}
+                <ul class="result-titles">
+                    {% for title in json_loads(result.vector_search_results ) %}
+                    <li>{{ title }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                No results
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </body>
 
