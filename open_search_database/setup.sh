@@ -10,6 +10,13 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 pip install opensearch-py watchdog PyPDF2 python-docx flask pandas openpyxl 
 
-pip install llama-index llama-index-readers-elasticsearch llama-index-vector-stores-opensearch llama-index-embeddings-ollama
+pip install llama-index
+# pip install llama-index-readers-elasticsearch 
+# pip install llama-index-vector-stores-opensearch 
+# pip install llama-index-embeddings-ollama
+pip install llama-index-core
+pip install llama-index-llms-openai
+pip install llama-index-llms-replicate
+pip install llama-index-embeddings-huggingface
 
 deactivate

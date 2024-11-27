@@ -13,3 +13,4 @@ __pycache__
 monitor_logs.db
 doc_retrieval_env
 log.db
+llamaindex_storage
