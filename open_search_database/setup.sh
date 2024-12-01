@@ -15,8 +15,8 @@ pip install llama-index
 # pip install llama-index-vector-stores-opensearch 
 # pip install llama-index-embeddings-ollama
 pip install llama-index-core
-pip install llama-index-llms-openai
-pip install llama-index-llms-replicate
 pip install llama-index-embeddings-huggingface
+
+pip install llama-index-llms-ollama
 
 deactivate

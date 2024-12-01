@@ -1,8 +1,10 @@
 from db_opensearch import opensearch_client
 from llama_index.core import VectorStoreIndex, Document, Settings, StorageContext, load_index_from_storage
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.replicate import Replicate
-from transformers import AutoTokenizer
+from llama_index.embeddings.ollama import OllamaEmbedding
+# from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.llms.ollama import Ollama
+# from transformers import AutoTokenizer
 import os
 
 def fetch_documents_from_opensearch(client, index_name):
@@ -26,22 +28,41 @@ def fetch_documents_from_opensearch(client, index_name):
 def initialize_llamaindex():
     
     # settings 
-    Settings.chunk_size = 8192
-    Settings.llm = None
+    # Settings.chunk_size = 8192
+    Settings.chunk_size = 1024
+    # Settings.chunk_overlap = 50
+    
+    
+    
+    # Settings.llm = None
+    
+    # optimization: use llm
+    # no change?
+    Settings.llm = Ollama(model="llama3.2", request_timeout=60.0)
 
     # set tokenizer to match LLM
-    Settings.tokenizer = AutoTokenizer.from_pretrained(
-        "NousResearch/Llama-2-7b-chat-hf"
-    )
-
+    # Settings.tokenizer = AutoTokenizer.from_pretrained(
+    #     "NousResearch/Llama-2-7b-chat-hf"
+    # )
+    
+    # Settings.embed_model='local'
+    
+    # optimization: use better embedding algorithm
+    
     # set the embed model
-    Settings.embed_model = HuggingFaceEmbedding(
-        model_name="BAAI/bge-small-en-v1.5"
+    # Settings.embed_model = HuggingFaceEmbedding(
+    #     model_name="BAAI/bge-small-en-v1.5"
+    # )
+    
+    Settings.embed_model = OllamaEmbedding(
+        model_name="llama3.2",
+        base_url="http://localhost:11434",
+        ollama_additional_kwargs={"mirostat": 0},
     )
 
     # create index
     
-    storage_file = "llamaindex_storage"
+    storage_file = "llamaindex_storage_3"
     
     if os.path.exists(f"./{storage_file}"):
         print("llamaindex: loading index from storage")
@@ -68,12 +89,23 @@ def initialize_llamaindex():
         index = VectorStoreIndex.from_documents(llama_documents)
 
         # Save the index for future use
-        index.storage_context.persist("llamaindex_storage")
+        index.storage_context.persist(storage_file)
         
     query_engine = index.as_query_engine(
         response_mode="no_text",
         similarity_top_k=10
         )
+    
+    # optimization: use retriever engine
+    # query_engine = RetrieverQueryEngine(
+    #     retriever=index.as_retriever(
+    #         # response_mode="no_text",
+    #         similarity_top_k=10
+    #         )
+    #     )   
+    
+     # optimization: hybrid search
+
     return query_engine
 
 def format_response(response):
@@ -105,15 +137,15 @@ def print_results(query, results):
     for idx, doc in enumerate(results, start=1):
         print(f"Document {idx}: {doc['title']}")
         # print(f"Content: {doc['content'][:200]}")
-        print(f"File path: {doc['file_path']}")
-        print(f"Score: {doc['score']}")
+        # print(f"File path: {doc['file_path']}")
+        # print(f"Score: {doc['score']}")
         print()
 # TESTING
 
 query_engine = initialize_llamaindex()
     
-# query = "Can companies process judicial data to fight corruption?"
-# query = "privacy"
+#query = "Can companies process judicial data to fight corruption?"
+#query = "privacy"
 
 query = "What is the impact of the GDPR on the M&A market in the US?"
 # expected result = "2018-03-26_impact_of_the_european_general_data_protection_regulation_on_u.s._manda.pdf"

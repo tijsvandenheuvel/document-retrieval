@@ -14,3 +14,5 @@ monitor_logs.db
 doc_retrieval_env
 log.db
 llamaindex_storage
+llamaindex_storage_2
+llamaindex_storage_3
