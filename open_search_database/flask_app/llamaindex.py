@@ -96,20 +96,21 @@ def initialize_llamaindex():
 def format_response(response):
     source_nodes = response.source_nodes  # List of source nodes
 
-    # print(source_nodes[0])
-
-    results = [
-        {
-            "title": node.metadata["file_path"].split('/')[-1],
-            "file_path": node.metadata["file_path"],
-            "content": node.text[:200],
-            "score": node.score,
-            "search_type": 'llamaindex',
-            # "metadata": node.metadata  # Extract metadata (e.g., file paths, tags)
-        }
-        for node in source_nodes
-    ]
-    
+    grouped_results = {}
+    for node in source_nodes:
+        file_path = node.metadata["file_path"]
+        if file_path not in grouped_results:
+            grouped_results[file_path] = {
+                "title": file_path.split('/')[-1],
+                "file_path": file_path,
+                "content": node.text[:200],
+                "score": node.score,
+                "search_type": 'llamaindex'
+            }
+        else:
+            # Optionally, update with a higher score or merge content
+            grouped_results[file_path]["score"] = max(grouped_results[file_path]["score"], node.score)
+    return list(grouped_results.values())[:10]
     return results
     
 def search_by_llamaindex(query, query_engine):
@@ -129,7 +130,6 @@ def print_results(query, results):
 
 # query_engine = initialize_llamaindex()
     
-# #query = "Can companies process judicial data to fight corruption?"
 # query = "privacy"
     
 # results = search_by_llamaindex(query, query_engine)
