@@ -3,7 +3,7 @@ from llama_index.core import VectorStoreIndex, Document, Settings, StorageContex
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.embeddings.ollama import OllamaEmbedding
 # from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.llms.ollama import Ollama
+# from llama_index.llms.ollama import Ollama
 # from transformers import AutoTokenizer
 import os
 
@@ -12,7 +12,7 @@ def fetch_documents_from_opensearch(client, index_name):
         "query": {"match_all": {}},  # Fetch all documents
         "_source": ["content", "content_vector", "file_path"]
     }
-    response = client.search(index=index_name, body=search_body, size=1000)  # Adjust size for more documents
+    response = client.search(index=index_name, body=search_body, size=100)  # Adjust size for more documents
 
     documents = []
     for hit in response['hits']['hits']:
@@ -34,11 +34,11 @@ def initialize_llamaindex():
     
     
     
-    # Settings.llm = None
+    Settings.llm = None
     
     # optimization: use llm
     # no change?
-    Settings.llm = Ollama(model="llama3.2", request_timeout=60.0)
+    # Settings.llm = Ollama(model="llama3.2", request_timeout=60.0)
 
     # set tokenizer to match LLM
     # Settings.tokenizer = AutoTokenizer.from_pretrained(
@@ -76,6 +76,8 @@ def initialize_llamaindex():
         print("llamaindex: creating index from opensearch documents")
 
         documents = fetch_documents_from_opensearch(opensearch_client, "documents")
+        
+        documents = documents[:10]
         
         llama_documents = [
             Document(
@@ -145,10 +147,7 @@ def print_results(query, results):
 query_engine = initialize_llamaindex()
     
 #query = "Can companies process judicial data to fight corruption?"
-#query = "privacy"
-
-query = "What is the impact of the GDPR on the M&A market in the US?"
-# expected result = "2018-03-26_impact_of_the_european_general_data_protection_regulation_on_u.s._manda.pdf"
+query = "privacy"
     
 results = search_by_llamaindex(query, query_engine)
 
