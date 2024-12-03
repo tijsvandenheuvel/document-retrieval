@@ -1,18 +1,14 @@
 from db_opensearch import opensearch_client
 from llama_index.core import VectorStoreIndex, Document, Settings, StorageContext, load_index_from_storage
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.embeddings.ollama import OllamaEmbedding
-# from llama_index.core.query_engine import RetrieverQueryEngine
-# from llama_index.llms.ollama import Ollama
-# from transformers import AutoTokenizer
 import os
 
-def fetch_documents_from_opensearch(client, index_name):
+def fetch_documents_from_opensearch(client, index_name, num_of_docs):
     search_body = {
         "query": {"match_all": {}},  # Fetch all documents
         "_source": ["content", "content_vector", "file_path"]
     }
-    response = client.search(index=index_name, body=search_body, size=100)  # Adjust size for more documents
+    response = client.search(index=index_name, body=search_body, size=num_of_docs)  # Adjust size for more documents
 
     documents = []
     for hit in response['hits']['hits']:
@@ -27,42 +23,29 @@ def fetch_documents_from_opensearch(client, index_name):
 
 def initialize_llamaindex():
     
-    # settings 
-    # Settings.chunk_size = 8192
-    Settings.chunk_size = 1024
+    # chunk_size = 8192
+    chunk_size = 4096
+    # chunk_size = 2048
+    Settings.chunk_size = chunk_size
     # Settings.chunk_overlap = 50
     
-    
-    
     Settings.llm = None
-    
-    # optimization: use llm
-    # no change?
     # Settings.llm = Ollama(model="llama3.2", request_timeout=60.0)
 
     # set tokenizer to match LLM
     # Settings.tokenizer = AutoTokenizer.from_pretrained(
     #     "NousResearch/Llama-2-7b-chat-hf"
     # )
-    
-    # Settings.embed_model='local'
-    
-    # optimization: use better embedding algorithm
-    
+
     # set the embed model
-    # Settings.embed_model = HuggingFaceEmbedding(
-    #     model_name="BAAI/bge-small-en-v1.5"
-    # )
-    
-    Settings.embed_model = OllamaEmbedding(
-        model_name="llama3.2",
-        base_url="http://localhost:11434",
-        ollama_additional_kwargs={"mirostat": 0},
+    model_name="BAAI/bge-small-en-v1.5"
+    Settings.embed_model = HuggingFaceEmbedding(
+        model_name=model_name
     )
 
     # create index
     
-    storage_file = "llamaindex_storage_3"
+    storage_file = "llamaindex_bge_small"
     
     if os.path.exists(f"./{storage_file}"):
         print("llamaindex: loading index from storage")
@@ -75,9 +58,9 @@ def initialize_llamaindex():
     else:
         print("llamaindex: creating index from opensearch documents")
 
-        documents = fetch_documents_from_opensearch(opensearch_client, "documents")
+        documents = fetch_documents_from_opensearch(opensearch_client, "documents", 10000)
         
-        documents = documents[:10]
+        # documents = documents[:10]
         
         llama_documents = [
             Document(
@@ -144,11 +127,11 @@ def print_results(query, results):
         print()
 # TESTING
 
-query_engine = initialize_llamaindex()
+# query_engine = initialize_llamaindex()
     
-#query = "Can companies process judicial data to fight corruption?"
-query = "privacy"
+# #query = "Can companies process judicial data to fight corruption?"
+# query = "privacy"
     
-results = search_by_llamaindex(query, query_engine)
+# results = search_by_llamaindex(query, query_engine)
 
-print_results(query, results)
+# print_results(query, results)
