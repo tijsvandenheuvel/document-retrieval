@@ -1,99 +1,70 @@
 from db_opensearch import opensearch_client
-from llama_index.core import VectorStoreIndex, Document, Settings, StorageContext, load_index_from_storage
+from llama_index.core import VectorStoreIndex, Document, Settings, StorageContext, load_index_from_storage, ServiceContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.text_splitter import SentenceSplitter
 import os
 
-def fetch_documents_from_opensearch(client, index_name, num_of_docs):
-    search_body = {
-        "query": {"match_all": {}},  # Fetch all documents
-        "_source": ["content", "content_vector", "file_path"]
-    }
-    response = client.search(index=index_name, body=search_body, size=num_of_docs)  # Adjust size for more documents
-
-    documents = []
-    for hit in response['hits']['hits']:
-        source = hit['_source']
-        documents.append({
-            "content": source["content"],
-            "vector": source["content_vector"],  # Vector embeddings
-            "metadata": {"file_path": source.get("file_path", "")}  # Add any metadata needed
-        })
-        
-    return documents
-
-def initialize_llamaindex():
-    
-    # chunk_size = 8192
-    chunk_size = 4096
-    # chunk_size = 2048
-    Settings.chunk_size = chunk_size
-    # Settings.chunk_overlap = 50
-    
+def initialize_llamaindex_LABSE():
     Settings.llm = None
-    # Settings.llm = Ollama(model="llama3.2", request_timeout=60.0)
+    
+    model_name="sentence-transformers/LaBSE"
+    Settings.embed_model = HuggingFaceEmbedding(
+        model_name=model_name
+    )
+    
+    chunk_size = 512
+    Settings.chunk_size = chunk_size
 
-    # set tokenizer to match LLM
-    # Settings.tokenizer = AutoTokenizer.from_pretrained(
-    #     "NousResearch/Llama-2-7b-chat-hf"
-    # )
+    storage_file = "llamaindex_labse"
+    
+    if os.path.exists(f"./{storage_file}"):
+        print("llamaindex: loading labse index from storage")
+        
+        # index= VectorStoreIndex.load_from_disk(storage_file, service_context=service_context_1)
+        storage_context = StorageContext.from_defaults(persist_dir=f"./{storage_file}")
+        index = load_index_from_storage(storage_context)
+        
+    else:
+        print("llamaindex: Can't find storage")
+        index = None
+        
+    query_engine = index.as_query_engine(
+        response_mode="no_text",
+        similarity_top_k=20
+        )
 
-    # set the embed model
+    return query_engine
+
+def initialize_llamaindex_BGE():
+    Settings.llm = None
+    
     model_name="BAAI/bge-small-en-v1.5"
     Settings.embed_model = HuggingFaceEmbedding(
         model_name=model_name
     )
-
-    # create index
+    
+    chunk_size = 4096
+    Settings.chunk_size = chunk_size
     
     storage_file = "llamaindex_bge_small"
     
     if os.path.exists(f"./{storage_file}"):
-        print("llamaindex: loading index from storage")
+        print("llamaindex: loading bge index from storage")
+        # index= VectorStoreIndex.load_from_disk(storage_file, service_context=service_context_1)
         storage_context = StorageContext.from_defaults(persist_dir=f"./{storage_file}")
         index = load_index_from_storage(storage_context)
-    elif os.path.exists(f"./flask_app/{storage_file}"):
-        print("llamaindex: loading index from storage")
-        storage_context = StorageContext.from_defaults(persist_dir=f"./flask_app/{storage_file}")
-        index = load_index_from_storage(storage_context)
     else:
-        print("llamaindex: creating index from opensearch documents")
-
-        documents = fetch_documents_from_opensearch(opensearch_client, "documents", 10000)
-        
-        # documents = documents[:10]
-        
-        llama_documents = [
-            Document(
-                text=doc["content"],
-                metadata=doc["metadata"]
-            )
-            for doc in documents
-        ]
-        
-        # Build LlamaIndex
-        index = VectorStoreIndex.from_documents(llama_documents)
-
-        # Save the index for future use
-        index.storage_context.persist(storage_file)
+        print("llamaindex: Can't find storage")
+        index = None
         
     query_engine = index.as_query_engine(
         response_mode="no_text",
-        similarity_top_k=10
+        similarity_top_k=20
         )
-    
-    # optimization: use retriever engine
-    # query_engine = RetrieverQueryEngine(
-    #     retriever=index.as_retriever(
-    #         # response_mode="no_text",
-    #         similarity_top_k=10
-    #         )
-    #     )   
-    
-     # optimization: hybrid search
 
     return query_engine
 
-def format_response(response):
+def format_response(response, search_type):
     source_nodes = response.source_nodes  # List of source nodes
 
     grouped_results = {}
@@ -105,17 +76,29 @@ def format_response(response):
                 "file_path": file_path,
                 "content": node.text[:200],
                 "score": node.score,
-                "search_type": 'llamaindex'
+                "search_type": search_type
             }
         else:
             # Optionally, update with a higher score or merge content
             grouped_results[file_path]["score"] = max(grouped_results[file_path]["score"], node.score)
     return list(grouped_results.values())[:10]
-    return results
     
-def search_by_llamaindex(query, query_engine):
+def search_by_llamaindex(query, query_engine, search_type):
+    
+    if search_type == 'llamaindex_bge':
+        chunk_size = 4096
+        model_name="BAAI/bge-small-en-v1.5"
+    elif search_type == 'llamaindex_labse':
+        chunk_size = 512
+        model_name="sentence-transformers/LaBSE"
+
+    Settings.embed_model = HuggingFaceEmbedding(
+        model_name=model_name
+    )
+    Settings.chunk_size = chunk_size
+
     response = query_engine.query(query)
-    return format_response(response)
+    return format_response(response, search_type)
     
 def print_results(query, results):
     print(f"query: {query}")
@@ -126,12 +109,14 @@ def print_results(query, results):
         # print(f"File path: {doc['file_path']}")
         # print(f"Score: {doc['score']}")
         print()
+
 # TESTING
 
-# query_engine = initialize_llamaindex()
+# query_engine1 = initialize_llamaindex_BGE()
+# query_engine2 = initialize_llamaindex_LABSE()
     
 # query = "privacy"
-    
-# results = search_by_llamaindex(query, query_engine)
-
+# results = search_by_llamaindex(query, query_engine1, 'llamaindex_bge')
+# print_results(query, results)
+# results = search_by_llamaindex(query, query_engine2, 'llamaindex_labse')
 # print_results(query, results)

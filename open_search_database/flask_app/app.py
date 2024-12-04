@@ -5,7 +5,7 @@ import json
 from db_sqlite import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, close_db, clear_search_history, get_search_history, fetch_logs
 from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents, process_documents, generate_embeddings
 from scenario_script import load_results, get_queries
-from llamaindex import search_by_llamaindex, initialize_llamaindex
+from llamaindex import search_by_llamaindex, initialize_llamaindex_BGE, initialize_llamaindex_LABSE
 
 app = Flask(__name__)
 
@@ -19,7 +19,8 @@ def escape_single_quotes(value):
 # SQLite query history database 
 initialize_database()
 
-query_engine = initialize_llamaindex()
+query_engine1 = initialize_llamaindex_BGE()
+query_engine2 = initialize_llamaindex_LABSE()
 
 @app.teardown_appcontext
 def close_database_connection(exception):
@@ -98,8 +99,10 @@ def search():
         elif search_type == 'vector':
             query_vector = generate_embeddings(query)  # Generate embedding for the query
             results = search_by_vector(query_vector, search_type)
-        elif search_type == 'llamaindex':
-            results = search_by_llamaindex(query, query_engine)
+        elif search_type == 'llamaindex_bge':
+            results = search_by_llamaindex(query, query_engine1, search_type)
+        elif search_type == 'llamaindex_labse':
+            results = search_by_llamaindex(query, query_engine2, search_type)
         else:
             return jsonify({"error": "Invalid search type"}), 400
 
