@@ -19,8 +19,25 @@ def escape_single_quotes(value):
 # SQLite query history database 
 initialize_database()
 
-query_engine1 = initialize_llamaindex_BGE()
-query_engine2 = initialize_llamaindex_LABSE()
+query_engine1 = None
+query_engine2 = None
+
+def initialize_models():
+    pass
+    # global query_engine1, query_engine2
+    # if query_engine1 is None:
+    #     query_engine1 = initialize_llamaindex_BGE()
+    # if query_engine2 is None:
+    #     query_engine2 = initialize_llamaindex_LABSE()
+
+@app.route('/initialize-models', methods=['POST'])
+def initialize_models_route():
+    try:
+        initialize_models()
+        return jsonify({"message": "Models initialized successfully!"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to initialize models: {str(e)}"}), 500
+
 
 @app.teardown_appcontext
 def close_database_connection(exception):
@@ -54,6 +71,11 @@ def get_logs():
 def home():
     history = fetch_search_history()
     return render_template("index.html", history=history, json_loads=json.loads)
+
+@app.route("/gpt", methods=["GET"])
+def gptindex():
+    history = fetch_search_history()
+    return render_template("gptindex.html", history=history, json_loads=json.loads)
 
 @app.route('/documents', methods=["GET"])
 def show_documents():

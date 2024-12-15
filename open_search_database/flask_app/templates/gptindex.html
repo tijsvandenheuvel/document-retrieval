@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Retrieval System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='gpt_styles.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Document Retrieval System</h1>
+
+            <div class="header-button-group">
+                <button class="dark-mode-toggle">
+                    ⚙️ Settings
+                    <!-- <a href="#" class=""></a> -->
+                </button>
+    
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <a href="#">📂 All Documents</a>
+                <a href="#">📜 Search History</a>
+                <a href="#">📑 Tagged Documents</a>
+                <!-- <a href="#">⚙️ Settings</a> -->
+            </div>
+
+            <!-- Content Area -->
+            <div class="content">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Enter your search query...">
+                    <button onclick="performSearch()">Search</button>
+                </div>
+
+                <h2>Search Results</h2>
+                <div class="results" id="results-container">
+                    <!-- Results will be dynamically added here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            &copy; 2024 Document Retrieval System. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        // Placeholder: JavaScript for search and interactivity
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function performSearch() {
+            const query = document.getElementById('search-input').value;
+            if (!query) {
+                alert('Please enter a search query.');
+                return;
+            }
+
+            // Simulate results (In practice, this will call the backend)
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="details">
+                        <h3>Document Title</h3>
+                        <p>Path: /path/to/document.pdf</p>
+                        <p>Snippet: Lorem ipsum dolor sit amet...</p>
+                    </div>
+                    <div class="actions">
+                        <a href="#">Open</a>
+                        <a href="#">Download</a>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

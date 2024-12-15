@@ -56,3 +56,27 @@ function selectHistoryItem(historyId) {
         })
         .catch(error => console.error("Error:", error));
 }
+
+// Function to initialize the models
+function initializeModels() {
+    fetch('/initialize-models', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            console.log(data.message); // Log success message
+        } else {
+            console.error("Failed to initialize models:", data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error during model initialization:", error);
+    });
+}
+
+// Call the function after the page is fully loaded
+window.onload = initializeModels;
