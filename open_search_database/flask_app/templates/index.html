@@ -14,9 +14,11 @@
         <!-- Left Column: Search and History -->
         <div class="column left-column">
             <div class="navigation">
-                <a href="{{ url_for('home') }}" class="link-button doc-link-button">⬅️ Back to Index</a>
-                <a href="{{ url_for('show_documents') }}" class="link-button">📂 View Documents</a>
-                <a href="{{ url_for('run_scenario') }}" class="link-button">Scenario</a>
+                <div>
+                    <a href="{{ url_for('home') }}" class="link-button doc-link-button">⬅️ Back to Index</a>
+                    <a href="{{ url_for('show_documents') }}" class="link-button">📂 View Documents</a>
+                    <a href="{{ url_for('run_scenario') }}" class="link-button">Scenario</a>
+                </div>
             </div>
             <div class="left-column-body">
                 <h1>Search Documents</h1>

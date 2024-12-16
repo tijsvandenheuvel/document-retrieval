@@ -81,10 +81,20 @@ def gptindex():
 def show_documents():
     try:
         documents = fetch_all_documents()
-        results = process_documents(documents)
+        folders = process_documents(documents)
         total_documents = len(documents)
+        
+        query = request.args.get('query', '').lower()
+        
+        if query:
+            for folder in folders:
+                folder['documents'] = [
+                    doc for doc in folder['documents']
+                    if query in doc['title'].lower()
+                ]
+            folders = [folder for folder in folders if folder['documents']]
 
-        return render_template('documents.html', folders=results, total_documents=total_documents)
+        return render_template('documents.html', folders=folders, total_documents=total_documents)
 
     except KeyError as e:
         # Handle missing keys in OpenSearch responses

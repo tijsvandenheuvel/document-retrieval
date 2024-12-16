@@ -12,11 +12,37 @@
 <body>
     <div class="container document-container">
         <div class="navigation">
-            <a href="{{ url_for('home') }}" class="link-button doc-link-button">⬅️ Back to Index</a>
-            <a href="{{ url_for('show_documents') }}" class="link-button">📂 View Documents</a>
-            <a href="{{ url_for('run_scenario') }}" class="link-button">Scenario</a>
+            <div class="navigation-left">
+                <a href="{{ url_for('home') }}" class="link-button doc-link-button">⬅️ Back to Index</a>
+                <a href="{{ url_for('show_documents') }}" class="link-button">📂 View Documents</a>
+                <a href="{{ url_for('run_scenario') }}" class="link-button">Scenario</a>
+            </div>
+            <div class="navigation-right">
+                <a href="{{ url_for('show_documents') }}" class="link-button">Document List</a>
+                <a href="{{ url_for('show_documents') }}" class="link-button">File structure</a>
+            </div>
         </div>
         <h1 class="page-title">{{ total_documents }} Documents in OpenSearch</h1>
+
+        <form method="GET" action="{{ url_for('show_documents') }}">
+            <input type="text" name="query" placeholder="Search for documents..."
+                value="{{ request.args.get('query', '') }}">
+            <button type="submit">Search</button>
+        </form>
+
+        {% if request.args.get('query') %}
+        <ul class="document-list">
+            {% for folder in folders %}
+            {% for doc in folder.documents %}
+            <li>
+                <p><strong>{{ doc.title }}</strong></p>
+                <!-- <p>{{ doc.file_path }}</p> -->
+                <!-- <p>{{ doc.content }}</p> -->
+            </li>
+            {% endfor %}
+            {% endfor %}
+        </ul>
+        {% else %}
         <ul class="folder-list">
             {% for folder in folders %}
             <li class="folder">
@@ -34,8 +60,11 @@
                             <p><strong>File Path:</strong> {{ doc.file_path }}</p>
                             <p><strong>Snippet:</strong> {{ doc.content }}</p>
                             <div class="actions">
-                                <a href="javascript:void(0);" onclick="openFile('{{ doc.file_path | escape_single_quotes }}')">Open File</a>
-                                <a href="javascript:void(0);" onclick="downloadFile('{{ doc.file_path | escape_single_quotes }}')">Download File</a>
+                                <a href="javascript:void(0);"
+                                    onclick="openFile('{{ doc.file_path | escape_single_quotes }}')">Open File</a>
+                                <a href="javascript:void(0);"
+                                    onclick="downloadFile('{{ doc.file_path | escape_single_quotes }}')">Download
+                                    File</a>
                             </div>
                         </div>
                     </li>
@@ -44,6 +73,7 @@
             </li>
             {% endfor %}
         </ul>
+        {% endif %}
     </div>
 </body>
 
