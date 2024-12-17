@@ -1,3 +1,4 @@
+from flask_cors import CORS
 from flask import Flask, request, render_template, jsonify, send_file
 import os
 import subprocess
@@ -8,6 +9,7 @@ from scenario_script import load_results, get_queries
 from llamaindex import search_by_llamaindex, initialize_llamaindex_BGE, initialize_llamaindex_LABSE
 
 app = Flask(__name__)
+CORS(app)
 
 # url format helper
 @app.template_filter('escape_single_quotes')
@@ -95,6 +97,34 @@ def show_documents():
             folders = [folder for folder in folders if folder['documents']]
 
         return render_template('documents.html', folders=folders, total_documents=total_documents)
+
+    except KeyError as e:
+        # Handle missing keys in OpenSearch responses
+        error_message = f"Missing key in OpenSearch response: {e}"
+        return jsonify({"error": error_message}), 500
+
+    except Exception as e:
+        # Handle unexpected errors
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+    
+@app.route('/get_documents', methods=["GET"])
+def get_documents():
+    try:
+        documents = fetch_all_documents()
+        folders = process_documents(documents)
+        # total_documents = len(documents)
+        
+        query = request.args.get('query', '').lower()
+        
+        if query:
+            for folder in folders:
+                folder['documents'] = [
+                    doc for doc in folder['documents']
+                    if query in doc['title'].lower()
+                ]
+            folders = [folder for folder in folders if folder['documents']]
+
+        return jsonify(folders)
 
     except KeyError as e:
         # Handle missing keys in OpenSearch responses
