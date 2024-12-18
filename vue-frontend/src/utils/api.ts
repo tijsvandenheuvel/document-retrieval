@@ -22,3 +22,11 @@ export const getAllDocuments = (callback: (arg0: []) => void) => {
         callback(documents);
     });
 }
+
+export const getDocumentCount = (callback: (arg0: number) => void) => {
+    apiCall("GET", db_url + "/get_document_count", null, (response) => {
+        let documents = JSON.parse(response);
+        callback(documents);
+    });
+}
+

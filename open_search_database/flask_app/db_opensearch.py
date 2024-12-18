@@ -54,6 +54,9 @@ def search_by_vector(query_vector, search_type):
     response = opensearch_client.search(index=INDEX_NAME, body=query_body)
     return parse_response(response, search_type)
     
+def fetch_document_count():
+    # Fetch the total number of documents in OpenSearch
+    return opensearch_client.count(index=INDEX_NAME)['count']
 
 def fetch_all_documents():
     # Fetch all documents from OpenSearch with scrolling

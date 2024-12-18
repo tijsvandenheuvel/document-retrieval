@@ -4,7 +4,7 @@ import os
 import subprocess
 import json
 from db_sqlite import initialize_database, insert_search_history, fetch_search_history, fetch_history_entry, close_db, clear_search_history, get_search_history, fetch_logs
-from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents, process_documents, generate_embeddings
+from db_opensearch import search_by_keyword, search_by_vector, fetch_all_documents, process_documents, generate_embeddings, fetch_document_count
 from scenario_script import load_results, get_queries
 from llamaindex import search_by_llamaindex, initialize_llamaindex_BGE, initialize_llamaindex_LABSE
 
@@ -106,6 +106,16 @@ def show_documents():
     except Exception as e:
         # Handle unexpected errors
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+    
+@app.route('/get_document_count', methods=["GET"])
+def get_document_count():
+    try:
+        count = fetch_document_count()
+        return jsonify(count)
+    
+    except Exception as e:
+        # Handle unexpected errors
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500 
     
 @app.route('/get_documents', methods=["GET"])
 def get_documents():
