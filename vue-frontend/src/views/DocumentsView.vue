@@ -1,9 +1,9 @@
 <template>
     <div class="documents">
 
-        <h1 class="page-title">{{ numberOfDocuments }} Documents in OpenSearch</h1>
+        <h1 class="page-title">{{ documentStore.documentCount }} Documents in OpenSearch</h1>
 
-        <DocumentFolderStructure :folders="folders"></DocumentFolderStructure>
+        <DocumentFolderStructure :folders="documentStore.folderStructure"></DocumentFolderStructure>
 
         <div v-if="isLoading"><h2>Loading...</h2></div>
 
@@ -13,32 +13,19 @@
 <script setup lang="ts">
 import DocumentFolderStructure from "../components/Documents/DocumentFolderStructure.vue";
 // import DocumentList from "../components/Documents/DocumentList.vue";
-import { ref, onMounted, type Ref } from 'vue';
-import * as api from "../utils/api";
+import { ref, onMounted } from 'vue';
 
-
-let numberOfDocuments: Ref<number> = ref(0);
-let folders: Ref<any[]> = ref([]);
+import { useDocumentStore } from '../stores/documentStore';
+const documentStore = useDocumentStore();
 
 const isLoading = ref(true);
 
-// TODO call api  & handle data in pinia store
-
-const getNumberOfDocuments  = () => {
-    api.getDocumentCount((response: number) => {numberOfDocuments.value = response})
-}
-
-const getDocuments  = () => {
-    api.getAllDocuments((response: []) => {
-        isLoading.value = false;
-        folders.value = response
-    });
-}
-
-
 onMounted(() => {
-    getNumberOfDocuments();
-    getDocuments();
+    documentStore.loadDocumentCount();
+
+    documentStore.loadDocuments(()=>{
+        isLoading.value = false;
+    });
 })
 
 </script>
@@ -57,4 +44,5 @@ onMounted(() => {
 .document-container {
     flex-direction: column;
 } */
+
 </style>
