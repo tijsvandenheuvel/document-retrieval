@@ -22,12 +22,15 @@ export const useDocumentStore = defineStore('documentStore', () => {
     function loadDocuments(callback?: (arg0: void) => void) {
         api.getAllDocuments((response: []) => {
             folderStructure.value = response
-            if (callback) callback();
-        });
-    }
-    function loadDocumentList(callback?: (arg0: void) => void) {
-        api.getAllDocumentsList((response: []) => {
-            documentList.value = response
+
+            //destructure into list
+            let list: Document[] = [];
+            for(let i = 0; i<folderStructure.value.length; i++) {
+                list.push(...folderStructure.value[i].documents);
+            }
+
+            documentList.value = list;
+
             if (callback) callback();
         });
     }
@@ -40,7 +43,6 @@ export const useDocumentStore = defineStore('documentStore', () => {
         folderStructure,
         documentCount,
         loadDocuments,
-        loadDocumentList,
         loadDocumentCount
     }
 });

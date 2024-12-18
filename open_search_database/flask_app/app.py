@@ -144,17 +144,6 @@ def get_documents():
     except Exception as e:
         # Handle unexpected errors
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
-    
-@app.route('/get_document_list', methods=["GET"])
-def get_document_list():
-    try:
-        documents = fetch_all_documents()
-    
-        return jsonify(documents)
-
-    except Exception as e:
-        # Handle unexpected errors
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 @app.route('/scenario', methods=["GET"])
 def run_scenario():
