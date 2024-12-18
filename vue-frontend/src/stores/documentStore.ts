@@ -19,10 +19,16 @@ export const useDocumentStore = defineStore('documentStore', () => {
     let folderStructure: Ref<Folder[]> = ref([]);
     let documentCount: Ref<number> = ref(0);
 
-    function loadDocuments(callback: (arg0: void) => void) {
+    function loadDocuments(callback?: (arg0: void) => void) {
         api.getAllDocuments((response: []) => {
             folderStructure.value = response
-            callback();
+            if (callback) callback();
+        });
+    }
+    function loadDocumentList(callback?: (arg0: void) => void) {
+        api.getAllDocumentsList((response: []) => {
+            documentList.value = response
+            if (callback) callback();
         });
     }
     function loadDocumentCount() {
@@ -34,6 +40,7 @@ export const useDocumentStore = defineStore('documentStore', () => {
         folderStructure,
         documentCount,
         loadDocuments,
+        loadDocumentList,
         loadDocumentCount
     }
 });
