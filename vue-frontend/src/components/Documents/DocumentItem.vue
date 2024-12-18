@@ -20,16 +20,8 @@
             </div>
 
             <div class="actions">
-
-                <!-- TODO rewrite open file with vue functionality -->
-                <a href="javascript:void(0);" onclick="openFile('{{ doc.file_path | escape_single_quotes }}')">Open
-                    File</a>
-
-                <!-- TODO rewrite download file with vue functionality -->
-                <a href="javascript:void(0);"
-                    onclick="downloadFile('{{ doc.file_path | escape_single_quotes }}')">Download
-                    File</a>
-
+                <button @click="openFile(document.file_path)">Open File</button>
+                <button @click="downloadFile(document.file_path)">Download File</button>
             </div>
         </div>
 
@@ -54,11 +46,40 @@ const toggleCard = () => {
     isOpen.value = !isOpen.value;
 }
 
+function openFile(filePath: string) {
+    const relative_file_path = filePath.split('documents/')[1];
+
+    fetch(`http://localhost:5000/open/${relative_file_path}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`File is being opened: ${relative_file_path}`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        })
+        .catch(error => alert(`Request failed: ${error}`));
+}
+
+function downloadFile(filePath: string) {
+    const relative_file_path = filePath.split('documents/')[1];
+
+    const link = window.document.createElement('a');
+    link.href = `http://localhost:5000/download/${relative_file_path}`; // Endpoint for downloading the file
+    const l = relative_file_path.split('/').pop(); // Optional: specify default name for download
+    if(l){
+        link.download = l;
+    }
+    console.log(link)
+    window.document.body.appendChild(link);
+    link.click();
+    window.document.body.removeChild(link);
+}
+
 </script>
 
 <style scoped>
-
-.document-header{
+.document-header {
     text-align: left;
     /* border: solid ; */
 }
@@ -96,7 +117,7 @@ const toggleCard = () => {
     text-align: left;
 }
 
-.dci-r{
+.dci-r {
     text-align: left;
     /* border: solid green; */
     width: 100%;
