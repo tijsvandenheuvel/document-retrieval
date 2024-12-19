@@ -5,7 +5,7 @@
 
         <ul class="folder-contents" v-for="document in list">
 
-            <DocumentItem :document="document"></DocumentItem>
+            <DocumentItem :document="document" :theme="'dark'"></DocumentItem>
 
         </ul>
 
@@ -28,8 +28,9 @@ const { list } = toRefs(props);
 <style scoped>
 
 .folder-contents {
-    padding: 15px;
+    /* padding: 15px; */
     padding-left: 30px;
+    margin: 0;
 }
 
 </style>

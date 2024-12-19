@@ -8,7 +8,7 @@
         <ul
             v-if="isOpen" class="folder-contents" v-for="document in folder.documents">
 
-            <DocumentItem :document="document"></DocumentItem>
+            <DocumentItem :document="document" :theme="'light'"></DocumentItem>
 
         </ul>
 
@@ -62,8 +62,8 @@ const toggleFolder = () => {
 .folder-contents {
     /* display: none; */
 
-    padding: 15px;
-    padding-left: 30px;
+    padding: 0 15px;
+    /* padding-left: 30px; */
 }
 
 </style>

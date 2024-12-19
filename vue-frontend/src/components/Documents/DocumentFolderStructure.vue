@@ -3,7 +3,7 @@
 
         <ul class="folder-list" v-for="folder in folders">
 
-            <DocumentFolder :folder="folder"></DocumentFolder>
+            <DocumentFolder :folder="folder" :theme="'light'"></DocumentFolder>
 
         </ul>
 

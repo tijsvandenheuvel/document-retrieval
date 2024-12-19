@@ -1,5 +1,5 @@
 <template>
-    <div class="document-item">
+    <div class="document-item" :class="{'dark': theme == 'dark'}" @mouseover="isHovered = true" @mouseleave="isHovered = false">
 
         <div class="document-header">
 
@@ -35,12 +35,14 @@ import { ref, toRefs } from 'vue';
 // import { ref, toRefs, watch, type Ref } from 'vue'
 
 const props = defineProps<{
-    document: Document
+    document: Document,
+    theme: string,
 }>()
 
-const { document } = toRefs(props);
+const { document, theme } = toRefs(props);
 
 const isOpen = ref(false);
+const isHovered = ref(false);
 
 const toggleCard = () => {
     isOpen.value = !isOpen.value;
@@ -67,7 +69,7 @@ function downloadFile(filePath: string) {
     const link = window.document.createElement('a');
     link.href = `http://localhost:5000/download/${relative_file_path}`; // Endpoint for downloading the file
     const l = relative_file_path.split('/').pop(); // Optional: specify default name for download
-    if(l){
+    if (l) {
         link.download = l;
     }
     console.log(link)
@@ -88,6 +90,23 @@ function downloadFile(filePath: string) {
     /* margin-bottom: 10px; */
     color: #000;
     /* display: flex; */
+    padding: 5px;
+    margin: 5px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s;
+}
+
+.document-item:hover {
+    background-color: #f0f0f0;
+}
+
+.dark{
+    background-color: #242424;
+    /* color: #fff; */
+}
+
+.dark:hover{
+    background-color: #333;
 }
 
 .document-card {
