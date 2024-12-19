@@ -1,8 +1,6 @@
 <template>
     <div class="document-list">
 
-        <h1>document list</h1>
-
         <ul class="folder-contents" v-for="document in list">
 
             <DocumentItem :document="document" :theme="'dark'"></DocumentItem>

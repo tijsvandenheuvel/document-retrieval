@@ -51,7 +51,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 5px;
     width: 100%;
   }
   
@@ -61,7 +61,7 @@
     position: relative;
     width: 100%;
     max-width: 400px;
-    height: 50px;
+    height: 40px;
     background: #f3f3f3;
     border-radius: 25px;
     overflow: hidden;
@@ -74,7 +74,7 @@
     left: var(--slider-left);
     width: calc(100% / var(--segments));
     height: 100%;
-    background: #4caf50;
+    background: #aaa;
     border-radius: 25px;
     transition: all 0.3s ease-in-out;
   }

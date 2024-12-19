@@ -18,6 +18,7 @@ export const useDocumentStore = defineStore('documentStore', () => {
     let documentList: Ref<Document[]> = ref([]);
     let folderStructure: Ref<Folder[]> = ref([]);
     let documentCount: Ref<number> = ref(0);
+    let selectedOption: Ref<'Folders'|'List'> = ref('Folders');
 
     function loadDocuments(callback?: (arg0: void) => void) {
         api.getAllDocuments((response: []) => {
@@ -38,11 +39,17 @@ export const useDocumentStore = defineStore('documentStore', () => {
         api.getDocumentCount((response: number) => {documentCount.value = response})
     }
 
+    function setSelectedOption(option: string) {
+        selectedOption.value = option as 'Folders' | 'List';
+    }
+
     return {
         documentList,
         folderStructure,
         documentCount,
         loadDocuments,
-        loadDocumentCount
+        loadDocumentCount,
+        selectedOption,
+        setSelectedOption,
     }
 });

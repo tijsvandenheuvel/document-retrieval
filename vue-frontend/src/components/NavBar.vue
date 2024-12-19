@@ -12,10 +12,29 @@
 			<RouterLink to="/todo">To Do</RouterLink> -->
 		</div>
 
+		<div class="nav-page-buttons" v-if="isDocumentsRoute">  
+			<SegmentButton :options="['Folders', 'List']" v-model="selectedOption"  @change="documentStore.setSelectedOption(selectedOption);"/>
+		</div>
+
 	</div>
 </template>
 
 <script setup lang="ts">
+import SegmentButton from '../components/ui/SegmentButton.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useDocumentStore } from '../stores/documentStore';
+
+
+const route = useRoute();
+const isDocumentsRoute = computed(() => route.path === '/documents');
+
+const documentStore = useDocumentStore();
+
+const selectedOption = computed({
+  get: () => documentStore.selectedOption,
+  set: (value) => documentStore.setSelectedOption(value),
+});
 
 </script>
 
@@ -28,8 +47,16 @@
 	overflow: hidden;
 	width: 100vw;
 	display: flex;
+	justify-content: space-between;
 
 	z-index:1;
+}
+
+.nav-page-buttons {
+	/* border: solid red; */
+	padding: 0;
+	padding-right: 20px;
+	width: 250px;
 }
 
 .nav a {
