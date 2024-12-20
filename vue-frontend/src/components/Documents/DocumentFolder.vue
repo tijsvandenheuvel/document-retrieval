@@ -5,11 +5,8 @@
             📁 {{ folder.folder }} ({{ folder.count }} documents)
         </div>
 
-        <ul
-            v-if="isOpen" class="folder-contents" v-for="document in folder.documents">
-
+        <ul v-if="isOpen" class="folder-contents" v-for="document in folder.documents">
             <DocumentItem :document="document" :theme="'light'"></DocumentItem>
-
         </ul>
 
     </div>

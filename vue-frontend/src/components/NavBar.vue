@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import SegmentButton from '../components/ui/SegmentButton.vue';
+import SegmentButton from '../components/shared/SegmentButton.vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDocumentStore } from '../stores/documentStore';
