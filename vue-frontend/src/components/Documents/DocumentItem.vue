@@ -3,7 +3,7 @@
 
         <div class="document-header">
 
-            <a href="#" @click.prevent="toggleCard">{{ document.title }}</a>
+            <a :class="{'empty': document.content.length == 0}" href="#" @click.prevent="toggleCard">{{ document.title }}</a>
 
         </div>
 
@@ -152,4 +152,9 @@ function downloadFile(filePath: string) {
 .actions a:hover {
     text-decoration: underline;
 }
+
+.empty{
+    color: crimson;
+}
+
 </style>
