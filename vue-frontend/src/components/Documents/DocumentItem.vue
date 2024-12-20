@@ -3,7 +3,8 @@
 
         <div class="document-header">
 
-            <a :class="{'empty': document.content.length == 0}" href="#" @click.prevent="toggleCard">{{ document.title }}</a>
+            <a :class="{'empty': document.isEmpty}" href="#" @click.prevent="toggleCard">{{ document.title }}</a>
+            <!-- <span v-if="document.isEmpty">empty !</span> -->
 
         </div>
 

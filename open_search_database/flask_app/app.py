@@ -122,18 +122,7 @@ def get_documents():
     try:
         documents = fetch_all_documents()
         folders = process_documents(documents)
-        # total_documents = len(documents)
-        
-        query = request.args.get('query', '').lower()
-        
-        if query:
-            for folder in folders:
-                folder['documents'] = [
-                    doc for doc in folder['documents']
-                    if query in doc['title'].lower()
-                ]
-            folders = [folder for folder in folders if folder['documents']]
-
+            
         return jsonify(folders)
 
     except KeyError as e:

@@ -92,7 +92,8 @@ def process_documents(documents):
                 "unique_id": unique_id,  # Assign unique ID
                 "title": os.path.basename(file_path),  # Get file name
                 "file_path": file_path,
-                "content": doc["_source"]["content"][:200]  # Limit snippet size
+                "content": doc["_source"]["content"][:200],  # Limit snippet size,
+                "isEmpty": not bool(doc["_source"]["content"])  # Check if content is empty
             }
             folder_map.setdefault(folder, []).append(file_data)
 
