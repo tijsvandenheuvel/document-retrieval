@@ -93,7 +93,8 @@ def process_documents(documents):
                 "title": os.path.basename(file_path),  # Get file name
                 "file_path": file_path,
                 "content": doc["_source"]["content"][:200],  # Limit snippet size,
-                "isEmpty": not bool(doc["_source"]["content"])  # Check if content is empty
+                "isEmpty": not bool(doc["_source"]["content"]),  # Check if content is empty
+                "fileType": file_path.split(".")[-1]
             }
             folder_map.setdefault(folder, []).append(file_data)
 

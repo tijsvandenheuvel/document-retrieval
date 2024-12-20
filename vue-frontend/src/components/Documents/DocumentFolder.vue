@@ -37,8 +37,9 @@ const toggleFolder = () => {
 <style scoped>
 
 .document-folder {
-    background: #f9f9f9;
+    background: #ccc;
     margin: 10px;
+    padding-bottom: 10px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -53,7 +54,7 @@ const toggleFolder = () => {
 }
 
 .folder-header:hover {
-    background-color: #f0f0f0;
+    background-color: #ccc;
 }
 
 .folder-contents {

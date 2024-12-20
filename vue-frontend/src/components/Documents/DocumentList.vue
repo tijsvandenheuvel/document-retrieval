@@ -1,27 +1,15 @@
 <template>
     <div class="document-list">
 
-        <!-- <div class="controls">
-            <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search documents..."
-                class="search-bar"
-            />
-            <select v-model="sortOption" class="sort-select">
-                <option value="default">Sort by default</option>
-                <option value="title up">Sort by Title up</option>
-                <option value="title down">Sort by Title down</option>
-            </select>
-        </div> -->
-
         <div class="controls">
             <SearchBar placeholder="Search documents..." @update:query="searchQuery = $event" />
             <SortSelector :options="sortOptions" @update:sort="sortOption = $event" />
+            <FiltersControl :fileTypes="fileTypeOptions" @update:filters="filters = $event" />
         </div>
 
         <ul class="folder-contents">
-            <DocumentItem v-for="document in filteredAndSortedDocuments" :key="document.file_path" :document="document" :theme="'dark'" />
+            <DocumentItem v-for="document in filteredAndSortedDocuments" :key="document.file_path" :document="document"
+                :theme="'dark'" />
         </ul>
 
     </div>
@@ -33,57 +21,90 @@ import { type Document } from '../../stores/documentStore';
 import DocumentItem from "../Documents/DocumentItem.vue";
 import SearchBar from "../shared/SearchBar.vue";
 import SortSelector from "../shared/SortSelector.vue";
+import FiltersControl from "../shared/FiltersControl.vue";
 
 const props = defineProps<{
     list: Document[]
 }>()
 
-// const { list } = toRefs(props);
-
 const searchQuery = ref("");
 const sortOption = ref("default");
+const fileTypeOptions = ['pdf', 'docx', 'xlsx', 'other'];
+
+const filters = ref({
+    notEmpty: true,
+    onlyEmpty: true,
+    fileTypes: [...fileTypeOptions],
+});
 
 // Sorting options
 const sortOptions = [
-  { label: "Sort by Default", value: "default" },
-  { label: "Sort by Title Up", value: "title up" },
-  { label: "Sort by Title Down", value: "title down" },
+    { label: "Sort by Default", value: "default" },
+    { label: "Sort by Title Up", value: "title up" },
+    { label: "Sort by Title Down", value: "title down" },
 ];
 
 // Computed filtered and sorted documents
 const filteredAndSortedDocuments = computed(() => {
-  const filtered = props.list.filter((document) =>
-    document.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+    let filtered = props.list;
 
-  if (sortOption.value === "title up") {
-    return filtered.sort((a, b) => a.title.localeCompare(b.title));
-  } else if (sortOption.value === "title down") {
-    return filtered.sort((a, b) => b.title.localeCompare(a.title));
-  }
 
-  return filtered;
+    // Apply search filter
+    filtered = filtered.filter((document) =>
+        document.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+
+    // Apply file type filter
+    if (filters.value.fileTypes.length > 0) {
+        filtered = filtered.filter((document) => {
+            const predefinedFileTypes = fileTypeOptions.filter(type => type !== 'other');
+            const isPredefined = predefinedFileTypes.includes(document.fileType);
+
+            if (filters.value.fileTypes.includes('other')) {
+                // Include documents that are not in predefined file types
+                return (
+                    (!isPredefined && filters.value.fileTypes.includes('other')) ||
+                    (isPredefined && filters.value.fileTypes.includes(document.fileType))
+                );
+            }
+
+            // Otherwise, include only the selected predefined file types
+            return filters.value.fileTypes.includes(document.fileType);
+        });
+    } else {
+        return [];
+    }
+
+    // Apply content filter
+    if (!filters.value.notEmpty) {
+        filtered = filtered.filter((document) => document.isEmpty);
+    }
+    if (!filters.value.onlyEmpty) {
+        filtered = filtered.filter((document) => !document.isEmpty);
+    }
+
+    // Apply sorting
+    if (sortOption.value === "title up") {
+        return filtered.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOption.value === "title down") {
+        return filtered.sort((a, b) => b.title.localeCompare(a.title));
+    }
+
+    return filtered;
 });
 
 </script>
 
 <style scoped>
 .folder-contents {
-    /* padding: 15px; */
     padding-left: 30px;
     margin: 0;
 }
 
-/* .search-bar {
-    width: 50%;
-    padding: 10px;
-    margin-right: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+.controls {
+    display: flex;
+    /* border: solid #ccc 1px; */
+    justify-content: center;
+    align-items: center;
 }
-
-.sort-select {
-    padding: 10px;
-    border-radius: 5px;
-} */
 </style>

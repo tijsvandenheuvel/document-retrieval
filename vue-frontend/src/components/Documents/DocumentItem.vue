@@ -2,10 +2,7 @@
     <div class="document-item" :class="{'dark': theme == 'dark'}" @mouseover="isHovered = true" @mouseleave="isHovered = false">
 
         <div class="document-header">
-
             <a :class="{'empty': document.isEmpty}" href="#" @click.prevent="toggleCard">{{ document.title }}</a>
-            <!-- <span v-if="document.isEmpty">empty !</span> -->
-
         </div>
 
         <div class="document-card" v-if="isOpen">
@@ -93,8 +90,9 @@ function downloadFile(filePath: string) {
     /* display: flex; */
     padding: 5px;
     margin: 5px;
-    background-color: #f9f9f9;
+    background-color: #ccc;
     transition: background-color 0.3s;
+    border-radius: 5px;
 }
 
 .document-item:hover {

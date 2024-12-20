@@ -59,4 +59,12 @@ const filteredAndSortedFolders = computed(() => {
     padding: 0;
     margin: 0 10px;
 }
+
+.controls {
+    display: flex;
+    /* border: solid #ccc 1px; */
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
 </style>

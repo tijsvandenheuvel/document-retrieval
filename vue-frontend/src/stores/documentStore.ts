@@ -13,6 +13,7 @@ export interface Document {
     file_path: string;
     content: string;
     isEmpty: boolean;
+    fileType: string;
 }
 
 export const useDocumentStore = defineStore('documentStore', () => {

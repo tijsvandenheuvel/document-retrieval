@@ -34,8 +34,10 @@
   <style scoped>
   .search-bar {
     width: 50%;
-    padding: 10px;
-    margin-right: 10px;
+    height: 30px;
+    font-size: 1.2em;
+    padding: 5px 10px;
+    margin: 0 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
   }
