@@ -4,6 +4,7 @@
 		<!-- routes -->
 		<div class="nav-router-links">
 			<RouterLink to="/">Home</RouterLink>
+			<RouterLink to="/search">Search</RouterLink>
 			<RouterLink to="/documents">Documents</RouterLink>
 			<!-- <RouterLink to="/about">About</RouterLink> -->
 			<!-- <RouterLink to="/engine">Engine</RouterLink>
