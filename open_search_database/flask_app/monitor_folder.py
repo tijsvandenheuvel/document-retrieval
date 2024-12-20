@@ -107,16 +107,20 @@ def extract_text_from_word(file_path):
 # Indexing function
 def index_document(file_path):
     
+    EMPTY_VECTOR = [0.0] * 384 
+    
     if file_path.endswith(".pdf"):
         content = extract_text_from_pdf(file_path)
         vector = generate_embeddings(content)
     elif file_path.endswith(".docx"):
         content = extract_text_from_word(file_path)
         vector = generate_embeddings(content)
+    elif(file_path.endswith(".DS_Store")):
+        return
     else:
         print(f"Unsupported file type: {file_path}")
         content = ""
-        vector = []
+        vector = EMPTY_VECTOR
 
     # Index the document in OpenSearch
     document = {
